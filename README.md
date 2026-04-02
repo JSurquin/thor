@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Thor — lab.andromed Playground
 
-## Getting Started
+Environnement de **playground interactif** pour coder pendant les formations : editeur Monaco, sandboxes (Sandpack), templates (React, Next.js, Docker, Rails, Ansible, Python, etc.), reset en un clic et export en ZIP.
 
-First, run the development server:
+## Prérequis
+
+- Node.js 20+
+- pnpm (recommandé)
+
+## Installation
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Commandes
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Commande        | Description                    |
+|-----------------|--------------------------------|
+| `pnpm dev`      | Serveur de développement      |
+| `pnpm build`    | Build de production            |
+| `pnpm start`    | Démarrer en production         |
+| `pnpm lint`     | Linter le code (ESLint)        |
+| `npx tsc --noEmit` | Verifier le typage TypeScript |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Structure
 
-## Learn More
+- `app/` — Routes Next.js (App Router) : accueil, playground, exercices
+- `components/` — Composants React et UI (shadcn)
+- `lib/` — Logique métier, templates, utils, types
+- `data/` — Donnees statiques : `exercises.json` (exercices de code)
 
-To learn more about Next.js, take a look at the following resources:
+## Exercices
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Les exercices sont définis dans **`data/exercises.json`**. Chaque entrée peut contenir :
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `id`, `title`, `description`, `instructions` (texte ou markdown)
+- `templateId` : `"react"` ou `"html"`
+- `entryFile` : fichier ouvert par défaut (ex. `"/App.js"`)
+- `initialFiles` (optionnel) : surcharge des fichiers du template
+- `validation` : tableau de règles mock (type `contains` : le fichier doit contenir une chaîne ; type `not_contains` : il ne doit pas la contenir)
+- `level`, `order` (optionnel)
 
-## Deploy on Vercel
+La validation est **en mémoire** : au clic sur « Valider », les règles sont vérifiées sur le code actuel. Idéal pour tester le flux avant de brancher un backend.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Déploiement
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Le projet est prêt pour un déploiement sur [Vercel](https://vercel.com) (framework Next.js détecté automatiquement).
+
+## Stack
+
+- Next.js 16, React 19, TypeScript
+- Tailwind CSS 4, shadcn/ui (new-york)
+- Monaco Editor, Sandpack (CodeSandbox)
+- Polices : Geist (next/font)

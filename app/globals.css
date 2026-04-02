@@ -49,6 +49,7 @@
 
 /* Thème clair (par défaut quand class="light" ou pas de class) */
 :root {
+  color-scheme: light;
   --radius: 0.625rem;
   --background: oklch(0.985 0 0);
   --foreground: oklch(0.15 0.02 270);
@@ -84,6 +85,7 @@
 }
 
 .dark {
+  color-scheme: dark;
   --background: oklch(0.06 0.012 270);
   --foreground: oklch(0.98 0 0);
   --card: oklch(0.09 0.012 270);
@@ -131,5 +133,24 @@
   select,
   textarea {
     font-size: 16px !important;
+  }
+}
+
+/* Safe area pour notches / barre de statut (mobile) */
+.safe-area-inset-top {
+  padding-top: env(safe-area-inset-top, 0);
+}
+.safe-area-inset-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

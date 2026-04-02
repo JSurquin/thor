@@ -1,0 +1,234 @@
+[
+  {
+    "id": "vue-ref-compteur",
+    "title": "Vue : compteur avec ref",
+    "description": "Utiliser ref() et un bouton pour incrémenter un compteur.",
+    "instructions": "## Objectif\nDans `src/App.vue`, utilisez la Composition API :\n\n- Créez une ref numérique pour un compteur initialisé à `0`.\n- Affichez la valeur du compteur dans le template (interpolation `{{ }}`).\n- Ajoutez un bouton dont le libellé exact est **Incrémenter** et qui augmente le compteur de 1 au clic (`@click`).\n\n**Indice :** `import { ref } from \"vue\"` dans `<script setup>`.",
+    "templateId": "vue",
+    "entryFile": "/src/App.vue",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/src/App.vue",
+        "substring": "ref(",
+        "successMessage": "ref() est utilisé."
+      },
+      {
+        "type": "contains",
+        "file": "/src/App.vue",
+        "substring": "Incrémenter",
+        "successMessage": "Bouton « Incrémenter » présent."
+      },
+      {
+        "type": "contains",
+        "file": "/src/App.vue",
+        "substring": "@click",
+        "successMessage": "Un gestionnaire de clic (@click) est défini."
+      }
+    ],
+    "level": "debutant",
+    "order": 1,
+    "hint": "Déclarez le compteur avec `const n = ref(0)` dans `<script setup>`, puis augmentez-le dans le `@click` du bouton.",
+    "solutionSummary": "Dans le template : `{{ n }}` et un bouton « Incrémenter » avec `@click=\"n++\"`. Importer `ref` depuis `vue` et utiliser `const n = ref(0)`.",
+    "solutionFiles": {
+      "/src/App.vue": "<template>\n  <div>\n    <p>{{ n }}</p>\n    <button type=\"button\" @click=\"n++\">Incrémenter</button>\n  </div>\n</template>\n<script setup>\nimport { ref } from 'vue'\nconst n = ref(0)\n</script>\n"
+    }
+  },
+  {
+    "id": "next-sous-titre-h2",
+    "title": "Next.js : ajouter un sous-titre (App Router)",
+    "description": "Enrichir la page d’accueil dans `app/page.jsx`.",
+    "instructions": "## Objectif\nDans `app/page.jsx`, dans le JSX retourné par le composant `Page` (App Router) :\n\n- Ajoutez une balise `<h2>` dont le texte est exactement : **Apprentissage Next.js** (respectez la casse et l’espace).\n\n**À propos de l’aperçu :** Sandpack exécute le même JSX avec le bundler React (comme un `createRoot` qui compose `app/layout.jsx` + `app/page.jsx`). En local, `next dev` utilisera les mêmes fichiers.",
+    "templateId": "next",
+    "entryFile": "/app/page.jsx",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/app/page.jsx",
+        "substring": "<h2>",
+        "successMessage": "Une balise <h2> est présente."
+      },
+      {
+        "type": "contains",
+        "file": "/app/page.jsx",
+        "substring": "Apprentissage Next.js",
+        "successMessage": "Le texte du sous-titre est correct."
+      }
+    ],
+    "level": "debutant",
+    "order": 2
+  },
+  {
+    "id": "react-hello-state",
+    "title": "React : premier useState",
+    "description": "Utiliser le hook useState pour afficher un compteur.",
+    "instructions": "## Objectif\nDans `App.js`, utilisez `useState` pour créer un compteur qui commence à 0.\n\n- Affichez la valeur du compteur dans un `<p>`.\n- Ajoutez un bouton \"Incrémenter\" qui augmente le compteur de 1 au clic.\n\n**Indice :** `import { useState } from 'react';`",
+    "templateId": "react",
+    "entryFile": "/App.js",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/App.js",
+        "substring": "useState",
+        "successMessage": "useState est bien utilisé."
+      },
+      {
+        "type": "contains",
+        "file": "/App.js",
+        "substring": "Incrémenter",
+        "successMessage": "Bouton Incrémenter présent."
+      }
+    ],
+    "level": "debutant",
+    "order": 3
+  },
+  {
+    "id": "react-list-map",
+    "title": "React : liste avec map",
+    "description": "Afficher une liste d’éléments avec .map().",
+    "instructions": "## Objectif\nAffichez une liste de 3 fruits (par ex. Pomme, Banane, Orange) en utilisant `.map()` sur un tableau.\n\n- Stockez le tableau dans une variable ou un state.\n- Rendez une liste `<ul>` avec des `<li>` pour chaque fruit.",
+    "templateId": "react",
+    "entryFile": "/App.js",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/App.js",
+        "substring": ".map(",
+        "successMessage": "map() est utilisé."
+      },
+      {
+        "type": "matches",
+        "file": "/App.js",
+        "pattern": "<ul\\b",
+        "flags": "i",
+        "successMessage": "Une liste <ul> est présente."
+      }
+    ],
+    "hint": "Stockez vos fruits dans un tableau, puis `fruits.map(...)` pour produire les `<li>`.",
+    "level": "debutant",
+    "order": 4
+  },
+  {
+    "id": "html-titre-couleur",
+    "title": "HTML/CSS : titre et couleur",
+    "description": "Modifier le titre et ajouter une couleur en CSS.",
+    "instructions": "## Objectif\n1. Dans `index.html`, changez le texte du `<h1>` pour afficher votre prénom.\n2. Dans `style.css`, donnez au `h1` une couleur de votre choix (ex: `color: navy;`).",
+    "templateId": "html",
+    "entryFile": "/index.html",
+    "validation": [
+      {
+        "type": "not_contains",
+        "file": "/index.html",
+        "substring": "Hello HTML",
+        "failMessage": "Le titre doit être modifié (ne plus être \"Hello HTML\")."
+      },
+      {
+        "type": "contains",
+        "file": "/style.css",
+        "substring": "color:",
+        "successMessage": "Une couleur est définie pour le titre."
+      }
+    ],
+    "level": "debutant",
+    "order": 5
+  },
+  {
+    "id": "js-regex-email",
+    "title": "JavaScript : valider un e-mail (regex)",
+    "description": "Écrire une regex simple dans `utils.js` pour `isEmail`.",
+    "instructions": "## Objectif\nComplétez `isEmail(str)` dans `utils.js` pour qu’elle retourne `true` si la chaîne contient un `@` et un point après le domaine (ex. `a@b.co`).\n\nUtilisez un littéral `/.../` ou `new RegExp(...)`.",
+    "templateId": "react",
+    "initialFiles": {
+      "/utils.js": "export function isEmail(str) {\n  return false;\n}\n"
+    },
+    "entryFile": "/utils.js",
+    "validation": [
+      {
+        "type": "matches",
+        "file": "/utils.js",
+        "pattern": "@",
+        "successMessage": "La regex ou le test utilise `@`."
+      },
+      {
+        "type": "not_contains",
+        "file": "/utils.js",
+        "substring": "return false",
+        "failMessage": "Remplacez `return false` par une expression qui teste la chaîne avec une regex ou une autre logique."
+      }
+    ],
+    "hint": "Exemple : `/^[^\\\\s@]+@[^\\\\s@]+\\\\.[^\\\\s@]+$/`.test(str)",
+    "solutionSummary": "`return /^[^\\\\s@]+@[^\\\\s@]+\\\\.[^\\\\s@]+$/.test(str)` ou équivalent avec `new RegExp`.",
+    "level": "intermediaire",
+    "order": 6
+  },
+  {
+    "id": "html-landmark-main",
+    "title": "HTML : zone principale `<main>`",
+    "description": "Entourer le contenu dans un landmark accessible.",
+    "instructions": "## Objectif\nDans `index.html`, le `<h1>` et le paragraphe visibles dans le `<body>` doivent être **à l’intérieur** d’une balise `<main>...</main>`.\n\nLa page doit rester valide (une seule `<main>` est recommandée).",
+    "templateId": "html",
+    "entryFile": "/index.html",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/index.html",
+        "substring": "<main",
+        "successMessage": "La balise <main> est présente."
+      },
+      {
+        "type": "contains",
+        "file": "/index.html",
+        "substring": "</main>",
+        "successMessage": "La balise </main> ferme correctement."
+      }
+    ],
+    "hint": "Ouvrez `<main>` juste après `<body>`, placez le `<h1>` et le `<p>` dedans, puis fermez `</main>` avant `</body>`.",
+    "solutionSummary": "Structure : `<body><main>… h1 + p …</main></body>`.",
+    "solutionFiles": {
+      "/index.html": "<!DOCTYPE html>\n<html lang=\"fr\">\n<head>\n  <meta charset=\"UTF-8\" />\n  <title>Ma page</title>\n  <link rel=\"stylesheet\" href=\"style.css\" />\n</head>\n<body>\n  <main>\n    <h1>Hello HTML</h1>\n    <p>Modifiez index.html et style.css.</p>\n  </main>\n</body>\n</html>\n"
+    },
+    "level": "debutant",
+    "order": 7
+  },
+  {
+    "id": "next-lien-navigation",
+    "title": "Next.js : lien avec next/link",
+    "description": "Utiliser le composant Link pour la navigation interne.",
+    "instructions": "## Objectif\nDans `app/page.jsx` :\n\n1. Importez `Link` depuis `next/link`.\n2. Ajoutez un lien vers la route `/contact` dont le texte visible est exactement **Nous contacter** (utilisez `<Link href=\"/contact\">…</Link>`).\n\nVous pouvez garder le `<h1>` existant au-dessus ou à côté du lien.",
+    "templateId": "next",
+    "entryFile": "/app/page.jsx",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/app/page.jsx",
+        "substring": "next/link",
+        "successMessage": "Import depuis next/link."
+      },
+      {
+        "type": "contains",
+        "file": "/app/page.jsx",
+        "substring": "<Link",
+        "successMessage": "Le composant Link est utilisé."
+      },
+      {
+        "type": "contains",
+        "file": "/app/page.jsx",
+        "substring": "/contact",
+        "successMessage": "Le href pointe vers /contact."
+      },
+      {
+        "type": "contains",
+        "file": "/app/page.jsx",
+        "substring": "Nous contacter",
+        "successMessage": "Libellé du lien correct."
+      }
+    ],
+    "hint": "`import Link from \"next/link\"` puis `<Link href=\"/contact\">Nous contacter</Link>`.",
+    "solutionSummary": "Importer `Link` depuis `next/link` et l’insérer dans le JSX retourné par `Page`.",
+    "solutionFiles": {
+      "/app/page.jsx": "import Link from \"next/link\";\n\nexport default function Page() {\n  return (\n    <main style={{ padding: 48, fontFamily: \"system-ui\" }}>\n      <h1>Next.js — App Router</h1>\n      <p>\n        <Link href=\"/contact\">Nous contacter</Link>\n      </p>\n    </main>\n  );\n}\n"
+    },
+    "level": "debutant",
+    "order": 8
+  }
+]

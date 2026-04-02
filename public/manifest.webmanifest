@@ -1,0 +1,45 @@
+{
+  "name": "lab.andromed — Playground",
+  "short_name": "lab.andromed",
+  "description": "Playground interactif, exercices de code et ressources de formation",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0a0a0b",
+  "theme_color": "#6366f1",
+  "lang": "fr",
+  "icons": [
+    {
+      "src": "/icon",
+      "sizes": "32x32",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/apple-icon",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Playground",
+      "short_name": "Code",
+      "description": "Ouvrir l’éditeur sandbox",
+      "url": "/playground"
+    },
+    {
+      "name": "Exercices",
+      "short_name": "Exos",
+      "description": "Liste des exercices guidés",
+      "url": "/exercices"
+    },
+    {
+      "name": "Ressources",
+      "short_name": "Vidéos",
+      "description": "Playlists de formation",
+      "url": "/ressources"
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 export type TemplateId =
   | "react"
   | "next"
+  | "vue"
   | "docker"
   | "rails"
   | "ansible"
@@ -76,25 +77,105 @@ body { margin: 0; font-family: system-ui, sans-serif; }
   next: {
     id: "next",
     name: "Next.js",
-    description: "Application Next.js (App Router)",
+    description: "App Router (app/page, app/layout) — aperçu React Sandpack",
     icon: "▲",
     entryFile: "/app/page.jsx",
     files: {
+      "/app/layout.jsx": `import "./globals.css";
+
+/* Dans un vrai projet Next, ce layout envelopperait <html> et <body>.
+   Ici le rendu est monté dans #root, d’où ce conteneur. */
+export default function RootLayout({ children }) {
+  return (
+    <div className="next-app-root" lang="fr">
+      {children}
+    </div>
+  );
+}
+`,
       "/app/page.jsx": `export default function Page() {
   return (
-    <main style={{ padding: 48, fontFamily: 'system-ui' }}>
-      <h1>Next.js Playground</h1>
-      <p>Modifiez <code>app/page.jsx</code> pour voir le rendu.</p>
+    <main style={{ padding: 48, fontFamily: "system-ui" }}>
+      <h1>Next.js — App Router</h1>
+      <p>
+        Modifiez <code>app/page.jsx</code> (et au besoin <code>app/layout.jsx</code>).
+      </p>
     </main>
   );
 }
 `,
-      "/app/layout.jsx": `export default function RootLayout({ children }) {
-  return (
-    <html lang="fr">
-      <body>{children}</body>
-    </html>
-  );
+      "/app/globals.css": `* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.next-app-root {
+  min-height: 100%;
+}
+`,
+      "/index.js": `import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import RootLayout from "./app/layout.jsx";
+import Page from "./app/page.jsx";
+
+/* Point d’entrée pour l’aperçu : compose layout + page comme Next.js */
+createRoot(document.getElementById("root")).render(
+  <StrictMode>
+    <RootLayout>
+      <Page />
+    </RootLayout>
+  </StrictMode>
+);
+`,
+      "/index.html": `<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Next.js — Playground</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.js"></script>
+  </body>
+</html>
+`,
+    },
+  },
+  vue: {
+    id: "vue",
+    name: "Vue 3",
+    description: "Vue 3 (Composition API) — aperçu Sandpack",
+    icon: "💚",
+    entryFile: "/src/App.vue",
+    files: {
+      "/src/App.vue": `<template>
+  <div style="padding: 24px; font-family: system-ui">
+    <h1>{{ titre }}</h1>
+    <p>Modifiez <code>src/App.vue</code> pour voir le rendu.</p>
+  </div>
+</template>
+
+<script setup>
+import { ref } from "vue";
+const titre = ref("Hello Vue");
+</script>
+`,
+      "/src/main.js": `import { createApp } from "vue";
+import App from "./App.vue";
+import "./styles.css";
+
+createApp(App).mount("#app");
+`,
+      "/src/styles.css": `* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
 }
 `,
     },
@@ -220,7 +301,7 @@ rails server
 server1 ansible_host=192.168.1.10
 server2 ansible_host=192.168.1.11
 
-[all:vars]
+[all_vars]
 ansible_user=deploy
 ansible_ssh_private_key_file=~/.ssh/deploy_key
 `,

@@ -1,0 +1,3 @@
+Contact: https://lab.andromed.fr
+Preferred-Languages: fr, en
+Canonical: https://lab.andromed.fr/.well-known/security.txt
