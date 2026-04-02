@@ -15,6 +15,7 @@ import {
   Link2Icon,
   UploadIcon,
   KeyboardIcon,
+  FolderTreeIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,9 +36,16 @@ import {
   templateSupportsSandpackPreview,
   type PlaygroundHydrate,
 } from "@/lib/playground";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { OfflineExportDialog } from "@/components/offline-export-dialog";
 import { ResumeLocalDraftDialog } from "@/components/resume-local-draft-dialog";
 import { ShortcutsHelpDialog } from "@/components/shortcuts-help-dialog";
+import { PlaygroundFileTree } from "@/components/playground-file-tree";
 import {
   readPlaygroundDraft,
   writePlaygroundDraft,
@@ -101,6 +109,7 @@ function PlaygroundWorkspace({ hydrate }: { hydrate: PlaygroundHydrate | null })
   const [mobilePanel, setMobilePanel] = useState<PlaygroundPanel>("editor");
   const [offlineExportOpen, setOfflineExportOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [mobileFileTreeOpen, setMobileFileTreeOpen] = useState(false);
   const zipInputRef = useRef<HTMLInputElement>(null);
   const state = usePlaygroundState(initialTemplate, hydrate);
   const isDark = (resolvedTheme ?? "dark") === "dark";
@@ -113,6 +122,8 @@ function PlaygroundWorkspace({ hydrate }: { hydrate: PlaygroundHydrate | null })
     setTemplate,
     updateFile,
     mergeImportedFiles,
+    addFile,
+    removeFile,
     reset,
     filePaths,
   } = state;
@@ -396,23 +407,34 @@ function PlaygroundWorkspace({ hydrate }: { hydrate: PlaygroundHydrate | null })
             mobilePanel !== "editor" ? "hidden lg:flex" : "flex"
           }`}
         >
-          <div className="border-b border-border/40 px-2 py-1.5 flex items-center gap-1 overflow-x-auto shrink-0 min-h-[44px] scrollbar-thin">
-            {filePaths.map((path) => (
-              <button
-                key={path}
-                type="button"
-                onClick={() => setActiveFile(path)}
-                className={`px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors touch-manipulation min-h-[40px] ${
-                  activeFile === path
-                    ? "bg-primary/15 text-primary"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                }`}
-              >
-                {path.replace(/^\//, "")}
-              </button>
-            ))}
+          <div className="lg:hidden border-b border-border/40 px-2 py-2 shrink-0 flex items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="gap-2 min-h-[40px] touch-manipulation"
+              onClick={() => setMobileFileTreeOpen(true)}
+            >
+              <FolderTreeIcon className="size-4" />
+              Fichiers
+            </Button>
+            <span className="text-xs text-muted-foreground truncate flex-1 min-w-0" title={activeFile}>
+              {activeFile.replace(/^\//, "")}
+            </span>
           </div>
-          <div className="flex-1 min-h-[280px] sm:min-h-[320px] lg:min-h-[400px] overflow-hidden">
+
+          <div className="flex flex-1 flex-col lg:flex-row min-h-0 min-h-[260px] sm:min-h-[300px] lg:min-h-[400px]">
+            <aside className="hidden lg:flex w-[220px] xl:w-56 shrink-0 flex-col border-b lg:border-b-0 lg:border-r border-border/40 bg-muted/10">
+              <PlaygroundFileTree
+                filePaths={filePaths}
+                activeFile={activeFile}
+                onSelectFile={setActiveFile}
+                onAddFile={addFile}
+                onRemoveFile={removeFile}
+                className="flex-1 min-h-0"
+              />
+            </aside>
+            <div className="flex-1 min-w-0 min-h-[240px] flex flex-col overflow-hidden">
             <MonacoEditor
               height="100%"
               language={getLanguage(activeFile)}
@@ -429,6 +451,7 @@ function PlaygroundWorkspace({ hydrate }: { hydrate: PlaygroundHydrate | null })
                 automaticLayout: true,
               }}
             />
+            </div>
           </div>
         </div>
 
@@ -465,6 +488,27 @@ function PlaygroundWorkspace({ hydrate }: { hydrate: PlaygroundHydrate | null })
           { keys: "⌘/Ctrl+Shift+S", label: "Ouvrir l’export hors ligne" },
         ]}
       />
+
+      <Dialog open={mobileFileTreeOpen} onOpenChange={setMobileFileTreeOpen}>
+        <DialogContent className="max-h-[85vh] flex flex-col gap-0 p-0 sm:max-w-lg overflow-hidden">
+          <DialogHeader className="px-4 py-3 border-b border-border/40 shrink-0 text-left">
+            <DialogTitle>Fichiers du projet</DialogTitle>
+          </DialogHeader>
+          <div className="min-h-[200px] max-h-[70vh] flex flex-col overflow-hidden">
+            <PlaygroundFileTree
+              filePaths={filePaths}
+              activeFile={activeFile}
+              onSelectFile={(path) => {
+                setActiveFile(path);
+                setMobileFileTreeOpen(false);
+              }}
+              onAddFile={addFile}
+              onRemoveFile={removeFile}
+              className="flex-1 min-h-0"
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

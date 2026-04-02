@@ -1,6 +1,10 @@
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import type { PlaygroundShareHydrate } from "@/lib/share-state";
+import {
+  defaultContentForPath,
+  normalizePlaygroundPath,
+} from "@/lib/playground-paths";
 import { TEMPLATES, type TemplateId } from "@/lib/templates";
 
 export type PlaygroundHydrate = PlaygroundShareHydrate;
@@ -168,6 +172,46 @@ export function usePlaygroundState(
     []
   );
 
+  const addFile = useCallback((rawPath: string) => {
+    const path = normalizePlaygroundPath(rawPath);
+    if (!path) {
+      toast.error("Chemin invalide (pas de .. ni de segment vide)");
+      return false;
+    }
+    let added = false;
+    setFiles((prev) => {
+      if (prev[path] !== undefined) return prev;
+      added = true;
+      return { ...prev, [path]: defaultContentForPath(path) };
+    });
+    if (!added) {
+      toast.error("Un fichier existe déjà à ce chemin");
+      return false;
+    }
+    setActiveFile(path);
+    toast.success("Fichier créé");
+    return true;
+  }, []);
+
+  const removeFile = useCallback((path: string) => {
+    setFiles((prev) => {
+      const keys = Object.keys(prev);
+      if (keys.length <= 1) {
+        toast.error("Impossible de supprimer le dernier fichier");
+        return prev;
+      }
+      if (prev[path] === undefined) {
+        toast.error("Fichier introuvable");
+        return prev;
+      }
+      toast.success("Fichier supprimé");
+      const next = { ...prev };
+      delete next[path];
+      return next;
+    });
+    return true;
+  }, []);
+
   const filePaths = useMemo(() => Object.keys(files).sort(), [files]);
   const activeFile = useMemo(() => {
     if (filePaths.length === 0) return selectedFile;
@@ -184,6 +228,8 @@ export function usePlaygroundState(
     setTemplate,
     updateFile,
     mergeImportedFiles,
+    addFile,
+    removeFile,
     reset,
     filePaths,
   };
