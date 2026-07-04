@@ -103,6 +103,8 @@ export function BashTerminalPreview() {
             className="flex-1 bg-transparent outline-none text-[#c9d1d9] caret-[#c9d1d9]"
             spellCheck={false}
             autoComplete="off"
+            autoCapitalize="off"
+            autoCorrect="off"
             aria-label="Commande bash"
             data-testid="bash-terminal-input"
           />
