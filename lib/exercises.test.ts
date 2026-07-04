@@ -4,6 +4,8 @@ import {
   getExerciseById,
   getExerciseInitialFiles,
   getExerciseEntryFile,
+  mergeExerciseFilesWithSeed,
+  resolveExerciseSelectedFile,
   getExerciseFileContent,
   validateExercise,
   isExerciseValid,
@@ -49,6 +51,29 @@ describe("getExerciseInitialFiles", () => {
     expect(files["/app/page.jsx"]).toBeDefined();
     expect(files["/app/layout.jsx"]).toContain("globals.css");
     expect(files["/index.js"]).toContain("RootLayout");
+  });
+
+  it("conserve le code de base si le brouillon est vide ou partiel", () => {
+    const ex = getExerciseById("next-lien-navigation");
+    expect(ex).toBeDefined();
+    const mergedEmpty = mergeExerciseFilesWithSeed(ex!, {});
+    expect(mergedEmpty["/app/page.jsx"]).toContain("Next.js");
+    const mergedPartial = mergeExerciseFilesWithSeed(ex!, {
+      "/app/page.jsx": "export default function Page() { return null; }",
+    });
+    expect(mergedPartial["/app/page.jsx"]).toContain("return null");
+    expect(mergedPartial["/app/layout.jsx"]).toContain("globals.css");
+  });
+});
+
+describe("resolveExerciseSelectedFile", () => {
+  it("retombe sur entryFile si le brouillon pointe vers un fichier absent", () => {
+    const ex = getExerciseById("next-lien-navigation");
+    expect(ex).toBeDefined();
+    const files = getExerciseInitialFiles(ex!);
+    expect(
+      resolveExerciseSelectedFile(ex!, files, "/fichier-inexistant.jsx")
+    ).toBe("/app/page.jsx");
   });
 });
 

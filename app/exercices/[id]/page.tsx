@@ -43,9 +43,12 @@ import {
   getExerciseById,
   getExerciseInitialFiles,
   getExerciseEntryFile,
+  mergeExerciseFilesWithSeed,
+  resolveExerciseSelectedFile,
   validateExercise,
   isExerciseValid,
 } from "@/lib/exercises";
+import type { editor } from "monaco-editor";
 import { OfflineExportDialog } from "@/components/offline-export-dialog";
 import { ResumeLocalDraftDialog } from "@/components/resume-local-draft-dialog";
 import {
@@ -133,11 +136,17 @@ function ExerciseWorkspaceInner({
 
   const [mobilePanel, setMobilePanel] = useState<Panel>("instructions");
   const [offlineExportOpen, setOfflineExportOpen] = useState(false);
+  const [isLargeScreen, setIsLargeScreen] = useState(true);
+  const monacoRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const [files, setFiles] = useState(() =>
-    seed ? { ...seed.files } : getExerciseInitialFiles(exercise)
+    mergeExerciseFilesWithSeed(exercise, seed?.files)
   );
-  const [selectedFile, setSelectedFile] = useState(
-    () => seed?.selectedFile ?? getExerciseEntryFile(exercise)
+  const [selectedFile, setSelectedFile] = useState(() =>
+    resolveExerciseSelectedFile(
+      exercise,
+      mergeExerciseFilesWithSeed(exercise, seed?.files),
+      seed?.selectedFile
+    )
   );
   const [validationResults, setValidationResults] = useState<
     import("@/lib/exercises").ValidationResult[] | null
@@ -159,6 +168,24 @@ function ExerciseWorkspaceInner({
   }, [filePaths, selectedFile]);
 
   useDocumentTitle(`${localized.title} — Exercices · lab.andromed`);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const update = () => setIsLargeScreen(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  const shouldRenderEditor = isLargeScreen || mobilePanel === "editor";
+
+  useEffect(() => {
+    if (!shouldRenderEditor) return;
+    const id = window.requestAnimationFrame(() => {
+      monacoRef.current?.layout();
+    });
+    return () => window.cancelAnimationFrame(id);
+  }, [shouldRenderEditor, editorPath, mobilePanel]);
 
   const copyCurrentFile = useCallback(async () => {
     const text = files[editorPath] ?? "";
@@ -505,23 +532,33 @@ function ExerciseWorkspaceInner({
               </button>
             ))}
           </div>
-          <div className="flex-1 min-h-[240px] sm:min-h-[280px] lg:min-h-[320px] overflow-hidden">
-            <MonacoEditor
-              height="100%"
-              language={getLanguage(editorPath)}
-              value={files[editorPath] ?? ""}
-              onChange={(value) => updateFile(editorPath, value ?? "")}
-              theme={isDark ? "vs-dark" : "vs"}
-              options={{
-                minimap: { enabled: false },
-                fontSize: 14,
-                padding: { top: 16 },
-                scrollBeyondLastLine: false,
-                lineNumbers: "on",
-                wordWrap: "on",
-                automaticLayout: true,
-              }}
-            />
+          <div className="flex-1 min-h-[280px] sm:min-h-[320px] lg:min-h-[320px] overflow-hidden">
+            {shouldRenderEditor ? (
+              <MonacoEditor
+                key={editorPath}
+                height="100%"
+                language={getLanguage(editorPath)}
+                value={files[editorPath] ?? ""}
+                onChange={(value) => updateFile(editorPath, value ?? "")}
+                onMount={(instance) => {
+                  monacoRef.current = instance;
+                  window.requestAnimationFrame(() => instance.layout());
+                }}
+                theme={isDark ? "vs-dark" : "vs"}
+                options={{
+                  readOnly: false,
+                  minimap: { enabled: false },
+                  fontSize: 14,
+                  padding: { top: 16 },
+                  scrollBeyondLastLine: false,
+                  lineNumbers: "on",
+                  wordWrap: "on",
+                  automaticLayout: true,
+                }}
+              />
+            ) : (
+              <ExerciseEditorLoading />
+            )}
           </div>
         </section>
 

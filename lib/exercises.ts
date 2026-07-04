@@ -47,6 +47,32 @@ export function getExerciseInitialFiles(exercise: Exercise): Record<string, stri
   return base;
 }
 
+/** Fusionne un brouillon ou un partage avec les fichiers initiaux (évite un éditeur vide). */
+export function mergeExerciseFilesWithSeed(
+  exercise: Exercise,
+  seedFiles: Record<string, string> | null | undefined
+): Record<string, string> {
+  const base = getExerciseInitialFiles(exercise);
+  if (!seedFiles) return base;
+  return { ...base, ...seedFiles };
+}
+
+export function resolveExerciseSelectedFile(
+  exercise: Exercise,
+  files: Record<string, string>,
+  preferred?: string
+): string {
+  const paths = Object.keys(files);
+  if (preferred) {
+    for (const key of [preferred, preferred.startsWith("/") ? preferred.slice(1) : `/${preferred}`]) {
+      if (paths.includes(key)) return key;
+    }
+  }
+  const entry = getExerciseEntryFile(exercise);
+  if (paths.includes(entry)) return entry;
+  return paths[0] ?? entry;
+}
+
 export function getExerciseEntryFile(exercise: Exercise): string {
   const files = getExerciseInitialFiles(exercise);
   const paths = Object.keys(files).sort();
