@@ -9,13 +9,14 @@ export default defineConfig({
   reporter: process.env.CI ? "github" : "list",
   use: {
     baseURL: "http://127.0.0.1:3333",
+    headless: true,
     trace: "on-first-retry",
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
-    command: "pnpm exec next dev -p 3333 -H 127.0.0.1",
+    command: "./node_modules/.bin/next dev -p 3333 -H 127.0.0.1",
     url: "http://127.0.0.1:3333",
-    reuseExistingServer: false,
+    reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },
 });
