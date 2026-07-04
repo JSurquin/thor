@@ -37,6 +37,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Spinner } from "@/components/ui/spinner";
 import type { Exercise } from "@/lib/exercises";
 import {
@@ -80,7 +86,7 @@ import { toast } from "sonner";
 import { useLocale } from "@/components/locale-provider";
 import { localizeExercise } from "@/lib/i18n";
 import { LocaleSwitcher } from "@/components/locale-switcher";
-import { ExerciseCorrectionPanel } from "@/components/exercise-correction-panel";
+import { ExerciseCorrectionPanel, useStepReveal } from "@/components/exercise-correction-panel";
 import { ExerciseEditorLoading } from "@/components/exercise-editor-loading";
 
 const MonacoEditor = dynamic(
@@ -107,6 +113,27 @@ const SandpackPreview = dynamic(
 );
 
 type Panel = "instructions" | "editor" | "preview";
+
+function AnimatedSolutionSummary({ text }: { text: string }) {
+  const paragraphs = useMemo(
+    () => text.split(/\n+/).map((p) => p.trim()).filter(Boolean),
+    [text]
+  );
+  const visibleCount = useStepReveal(paragraphs.length);
+
+  return (
+    <div className="space-y-3">
+      {paragraphs.slice(0, visibleCount).map((paragraph, i) => (
+        <p
+          key={i}
+          className="whitespace-pre-wrap text-foreground animate-in fade-in slide-in-from-bottom-2 duration-300"
+        >
+          {paragraph}
+        </p>
+      ))}
+    </div>
+  );
+}
 
 type ExerciseSeed = {
   files: Record<string, string>;
@@ -155,10 +182,12 @@ function ExerciseWorkspaceInner({
   const [hintOpen, setHintOpen] = useState(false);
   const [solutionConfirmOpen, setSolutionConfirmOpen] = useState(false);
   const [solutionOpen, setSolutionOpen] = useState(false);
+  const [correctionOpen, setCorrectionOpen] = useState(false);
 
   const instructionsRef = useRef<HTMLElement>(null);
   const editorRegionRef = useRef<HTMLElement>(null);
   const previewRegionRef = useRef<HTMLElement>(null);
+  const correctionPanelRef = useRef<HTMLDivElement>(null);
 
   const filePaths = useMemo(() => Object.keys(files).sort(), [files]);
   const editorPath = useMemo(() => {
@@ -269,6 +298,16 @@ function ExerciseWorkspaceInner({
   const handleValidate = useCallback(() => {
     const results = validateExercise(exercise, files, locale);
     setValidationResults(results);
+    if (isLargeScreen) {
+      window.requestAnimationFrame(() => {
+        correctionPanelRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+        });
+      });
+    } else {
+      setCorrectionOpen(true);
+    }
     if (isExerciseValid(results)) {
       markExerciseCompleted(exercise.id);
       toast.success(t.validateSuccess);
@@ -276,7 +315,7 @@ function ExerciseWorkspaceInner({
       const firstFail = results.find((r) => !r.ok);
       toast.error(firstFail && !firstFail.ok ? firstFail.message : t.validateError);
     }
-  }, [exercise, files, locale, t.validateSuccess, t.validateError]);
+  }, [exercise, files, locale, isLargeScreen, t.validateSuccess, t.validateError]);
 
   const sandpackFiles = useMemo(() => filesToSandpackFormat(files), [files]);
   const hasSandpack = templateSupportsSandpackPreview(exercise.templateId as TemplateId);
@@ -376,9 +415,10 @@ function ExerciseWorkspaceInner({
                 size="sm"
                 onClick={() => setSolutionConfirmOpen(true)}
                 className="gap-1.5 touch-manipulation"
+                aria-label={t.solution}
               >
                 <BookOpenCheckIcon className="size-4" />
-                <span className="hidden sm:inline">{t.solution}</span>
+                <span className="text-xs sm:text-sm">{t.solution}</span>
               </Button>
             ) : null}
             <Button
@@ -425,9 +465,10 @@ function ExerciseWorkspaceInner({
               size="sm"
               onClick={handleValidate}
               className="gap-1.5 touch-manipulation"
+              aria-label={t.validate}
             >
               <CheckCircle2Icon className="size-4" />
-              <span className="hidden sm:inline">{t.validate}</span>
+              <span className="text-xs sm:text-sm">{t.validate}</span>
             </Button>
           </div>
         </div>
@@ -579,16 +620,42 @@ function ExerciseWorkspaceInner({
         </section>
       </div>
 
-      {validationResults ? (
-        <ExerciseCorrectionPanel
-          results={validationResults}
-          labels={{
-            title: t.correctionTitle,
-            progress: t.correctionProgress,
-            allPassed: t.correctionAllPassed,
-            someFailed: t.correctionSomeFailed,
-          }}
-        />
+      {validationResults && isLargeScreen ? (
+        <div ref={correctionPanelRef}>
+          <ExerciseCorrectionPanel
+            results={validationResults}
+            labels={{
+              title: t.correctionTitle,
+              progress: t.correctionProgress,
+              allPassed: t.correctionAllPassed,
+              someFailed: t.correctionSomeFailed,
+            }}
+          />
+        </div>
+      ) : null}
+
+      {validationResults && !isLargeScreen ? (
+        <Sheet open={correctionOpen} onOpenChange={setCorrectionOpen}>
+          <SheetContent
+            side="bottom"
+            className="max-h-[75vh] overflow-y-auto rounded-t-xl px-0 pb-[env(safe-area-inset-bottom)]"
+          >
+            <SheetTitle className="sr-only">{t.correctionTitle}</SheetTitle>
+            <SheetDescription className="sr-only">
+              {t.correctionSheetDescription}
+            </SheetDescription>
+            <ExerciseCorrectionPanel
+              results={validationResults}
+              labels={{
+                title: t.correctionTitle,
+                progress: t.correctionProgress,
+                allPassed: t.correctionAllPassed,
+                someFailed: t.correctionSomeFailed,
+              }}
+              className="border-t-0"
+            />
+          </SheetContent>
+        </Sheet>
       ) : null}
 
       <OfflineExportDialog
@@ -666,9 +733,7 @@ function ExerciseWorkspaceInner({
             </DialogHeader>
             <div className="space-y-4 text-sm">
               {localized.solutionSummary ? (
-                <p className="whitespace-pre-wrap text-foreground">
-                  {localized.solutionSummary}
-                </p>
+                <AnimatedSolutionSummary text={localized.solutionSummary} />
               ) : null}
               {exercise.solutionFiles &&
               Object.keys(exercise.solutionFiles).length > 0 ? (

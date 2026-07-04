@@ -66,6 +66,8 @@ export const es: Messages = {
     notFound: "Ejercicio no encontrado.",
     backToExercises: "Volver a ejercicios",
     correctionTitle: "Corrección",
+    correctionSheetDescription:
+      "Corrección animada criterio por criterio tras validar tu código.",
     correctionProgress: (current, total) => `${current} / ${total}`,
     correctionAllPassed: "¡Todos los criterios validados!",
     correctionSomeFailed: "Corrige los puntos señalados arriba.",
@@ -88,7 +90,7 @@ export const es: Messages = {
       "Pista para este ejercicio, sin la solución completa",
     solutionConfirmTitle: "¿Mostrar la solución?",
     solutionConfirmDescription:
-      "Se mostrará la solución completa. Puedes cerrar la ventana y seguir trabajando en tu versión.",
+      "El resumen se mostrará aquí. Para una corrección animada criterio por criterio, usa Validar (✓), no Solución.",
     solutionConfirmShow: "Mostrar",
     solutionDialogTitle: "Solución",
     solutionDialogDescription:

@@ -66,6 +66,8 @@ export const fr: Messages = {
     notFound: "Exercice introuvable.",
     backToExercises: "Retour aux exercices",
     correctionTitle: "Correction",
+    correctionSheetDescription:
+      "Correction animée critère par critère après validation de votre code.",
     correctionProgress: (current, total) => `${current} / ${total}`,
     correctionAllPassed: "Tous les critères sont validés !",
     correctionSomeFailed: "Corrigez les points signalés ci-dessus.",
@@ -88,7 +90,7 @@ export const fr: Messages = {
       "Indice pour cet exercice, sans la solution complète",
     solutionConfirmTitle: "Afficher la solution ?",
     solutionConfirmDescription:
-      "La solution complète sera affichée. Vous pouvez fermer la fenêtre et continuer à travailler sur votre version.",
+      "Le récapitulatif s’affichera ici. Pour une correction animée critère par critère, utilisez le bouton Valider (✓), pas Solution.",
     solutionConfirmShow: "Afficher",
     solutionDialogTitle: "Solution",
     solutionDialogDescription:

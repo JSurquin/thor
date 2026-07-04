@@ -66,6 +66,8 @@ export const pl: Messages = {
     notFound: "Nie znaleziono ćwiczenia.",
     backToExercises: "Powrót do ćwiczeń",
     correctionTitle: "Korekta",
+    correctionSheetDescription:
+      "Animowana korekta kryterium po kryterium po walidacji kodu.",
     correctionProgress: (current, total) => `${current} / ${total}`,
     correctionAllPassed: "Wszystkie kryteria spełnione!",
     correctionSomeFailed: "Popraw wskazane punkty powyżej.",
@@ -88,7 +90,7 @@ export const pl: Messages = {
       "Wskazówka do tego ćwiczenia, bez pełnego rozwiązania",
     solutionConfirmTitle: "Pokazać rozwiązanie?",
     solutionConfirmDescription:
-      "Pełne rozwiązanie zostanie wyświetlone. Możesz zamknąć okno i kontynuować pracę nad swoją wersją.",
+      "Podsumowanie pojawi się tutaj. Aby zobaczyć animowaną korektę kryterium po kryterium, użyj Waliduj (✓), a nie Rozwiązanie.",
     solutionConfirmShow: "Pokaż",
     solutionDialogTitle: "Rozwiązanie",
     solutionDialogDescription:

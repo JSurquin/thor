@@ -7,6 +7,24 @@ import { Progress } from "@/components/ui/progress";
 
 const STEP_MS = 650;
 
+export function useStepReveal(total: number, stepMs = STEP_MS) {
+  const [visibleCount, setVisibleCount] = useState(0);
+
+  useEffect(() => {
+    setVisibleCount(0);
+  }, [total]);
+
+  useEffect(() => {
+    if (visibleCount >= total) return;
+    const timer = window.setTimeout(() => {
+      setVisibleCount((c) => c + 1);
+    }, stepMs);
+    return () => window.clearTimeout(timer);
+  }, [visibleCount, total, stepMs]);
+
+  return visibleCount;
+}
+
 export type ExerciseCorrectionLabels = {
   title: string;
   progress: (current: number, total: number) => string;
@@ -17,26 +35,16 @@ export type ExerciseCorrectionLabels = {
 type ExerciseCorrectionPanelProps = {
   results: ValidationResult[];
   labels: ExerciseCorrectionLabels;
+  className?: string;
 };
 
 export function ExerciseCorrectionPanel({
   results,
   labels,
+  className,
 }: ExerciseCorrectionPanelProps) {
-  const [visibleCount, setVisibleCount] = useState(0);
   const total = results.length;
-
-  useEffect(() => {
-    setVisibleCount(0);
-  }, [results]);
-
-  useEffect(() => {
-    if (visibleCount >= total) return;
-    const timer = window.setTimeout(() => {
-      setVisibleCount((c) => c + 1);
-    }, STEP_MS);
-    return () => window.clearTimeout(timer);
-  }, [visibleCount, total]);
+  const visibleCount = useStepReveal(total);
 
   const allOk = results.every((r) => r.ok);
   const animating = visibleCount < total;
@@ -48,7 +56,7 @@ export function ExerciseCorrectionPanel({
       role="status"
       aria-live="polite"
       aria-atomic="false"
-      className="border-t border-border/40 bg-muted/30 px-4 py-3 text-sm"
+      className={`border-t border-border/40 bg-muted/30 px-4 py-3 text-sm ${className ?? ""}`}
       data-testid="exercise-correction-panel"
     >
       <div className="flex items-center justify-between gap-2 mb-2">

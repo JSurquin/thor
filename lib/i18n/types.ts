@@ -73,6 +73,7 @@ export interface Messages {
     notFound: string;
     backToExercises: string;
     correctionTitle: string;
+    correctionSheetDescription: string;
     correctionProgress: (current: number, total: number) => string;
     correctionAllPassed: string;
     correctionSomeFailed: string;

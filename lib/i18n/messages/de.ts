@@ -66,6 +66,8 @@ export const de: Messages = {
     notFound: "Übung nicht gefunden.",
     backToExercises: "Zurück zu den Übungen",
     correctionTitle: "Korrektur",
+    correctionSheetDescription:
+      "Animierte Korrektur Kriterium für Kriterium nach der Code-Validierung.",
     correctionProgress: (current, total) => `${current} / ${total}`,
     correctionAllPassed: "Alle Kriterien erfüllt!",
     correctionSomeFailed: "Korrigieren Sie die oben markierten Punkte.",
@@ -88,7 +90,7 @@ export const de: Messages = {
       "Hinweis für diese Übung, ohne die vollständige Lösung",
     solutionConfirmTitle: "Lösung anzeigen?",
     solutionConfirmDescription:
-      "Die vollständige Lösung wird angezeigt. Sie können das Fenster schließen und an Ihrer Version weiterarbeiten.",
+      "Die Zusammenfassung wird hier angezeigt. Für eine animierte Korrektur Kriterium für Kriterium nutzen Sie Validieren (✓), nicht Lösung.",
     solutionConfirmShow: "Anzeigen",
     solutionDialogTitle: "Lösung",
     solutionDialogDescription:
