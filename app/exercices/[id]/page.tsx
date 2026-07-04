@@ -79,6 +79,10 @@ import {
 } from "@/lib/share-state";
 import { useDocumentTitle } from "@/lib/hooks/use-document-title";
 import { useEditorShortcuts } from "@/lib/hooks/use-editor-shortcuts";
+import {
+  useContainerHeight,
+  useIsLargeScreen,
+} from "@/lib/hooks/use-container-height";
 import { ShortcutsHelpDialog } from "@/components/shortcuts-help-dialog";
 import { BashTerminalPreview } from "@/components/bash-terminal-preview";
 import { markExerciseCompleted } from "@/lib/progress-storage";
@@ -163,7 +167,9 @@ function ExerciseWorkspaceInner({
 
   const [mobilePanel, setMobilePanel] = useState<Panel>("instructions");
   const [offlineExportOpen, setOfflineExportOpen] = useState(false);
-  const [isLargeScreen, setIsLargeScreen] = useState(true);
+  const isLargeScreen = useIsLargeScreen();
+  const { ref: editorContainerRef, height: editorHeight } =
+    useContainerHeight(320);
   const monacoRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const [files, setFiles] = useState(() =>
     mergeExerciseFilesWithSeed(exercise, seed?.files)
@@ -198,14 +204,6 @@ function ExerciseWorkspaceInner({
 
   useDocumentTitle(`${localized.title} — Exercices · lab.andromed`);
 
-  useEffect(() => {
-    const mq = window.matchMedia("(min-width: 1024px)");
-    const update = () => setIsLargeScreen(mq.matches);
-    update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
-  }, []);
-
   const shouldRenderEditor = isLargeScreen || mobilePanel === "editor";
 
   useEffect(() => {
@@ -214,7 +212,7 @@ function ExerciseWorkspaceInner({
       monacoRef.current?.layout();
     });
     return () => window.cancelAnimationFrame(id);
-  }, [shouldRenderEditor, editorPath, mobilePanel]);
+  }, [shouldRenderEditor, editorPath, mobilePanel, editorHeight]);
 
   const copyCurrentFile = useCallback(async () => {
     const text = files[editorPath] ?? "";
@@ -373,7 +371,7 @@ function ExerciseWorkspaceInner({
     );
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="flex h-dvh min-h-0 flex-col overflow-hidden bg-background">
       <header className="border-b border-border/40 bg-background/95 backdrop-blur sticky top-0 z-50 shrink-0 safe-area-inset-top">
         <div className="mx-auto max-w-[1920px] flex items-center justify-between gap-2 sm:gap-4 px-3 sm:px-4 py-2 sm:py-3">
           <div className="flex items-center gap-2 min-w-0">
@@ -553,7 +551,7 @@ function ExerciseWorkspaceInner({
         <section
           ref={editorRegionRef}
           tabIndex={-1}
-          className={`flex flex-col min-w-0 flex-1 outline-none ${
+          className={`flex min-h-0 flex-col min-w-0 flex-1 outline-none ${
             mobilePanel !== "editor" ? "hidden lg:flex" : "flex"
           }`}
         >
@@ -573,11 +571,14 @@ function ExerciseWorkspaceInner({
               </button>
             ))}
           </div>
-          <div className="flex-1 min-h-[280px] sm:min-h-[320px] lg:min-h-[320px] overflow-hidden">
+          <div
+            ref={editorContainerRef}
+            className="relative flex-1 min-h-[280px] sm:min-h-[320px] lg:min-h-[320px] overflow-hidden"
+          >
             {shouldRenderEditor ? (
               <MonacoEditor
                 key={editorPath}
-                height="100%"
+                height={editorHeight}
                 language={getLanguage(editorPath)}
                 value={files[editorPath] ?? ""}
                 onChange={(value) => updateFile(editorPath, value ?? "")}

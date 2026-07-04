@@ -61,6 +61,11 @@ import {
 import { isSafeZipRelativePath } from "@/lib/export-zip";
 import { useDocumentTitle } from "@/lib/hooks/use-document-title";
 import { useEditorShortcuts } from "@/lib/hooks/use-editor-shortcuts";
+import {
+  useContainerHeight,
+  useIsLargeScreen,
+} from "@/lib/hooks/use-container-height";
+import type { editor } from "monaco-editor";
 import { toast } from "sonner";
 
 const MonacoEditor = dynamic(
@@ -110,6 +115,10 @@ function PlaygroundWorkspace({ hydrate }: { hydrate: PlaygroundHydrate | null })
   const [offlineExportOpen, setOfflineExportOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
   const [mobileFileTreeOpen, setMobileFileTreeOpen] = useState(false);
+  const isLargeScreen = useIsLargeScreen();
+  const { ref: editorContainerRef, height: editorHeight } =
+    useContainerHeight(320);
+  const monacoRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const zipInputRef = useRef<HTMLInputElement>(null);
   const state = usePlaygroundState(initialTemplate, hydrate);
   const isDark = (resolvedTheme ?? "dark") === "dark";
@@ -129,6 +138,16 @@ function PlaygroundWorkspace({ hydrate }: { hydrate: PlaygroundHydrate | null })
   } = state;
 
   useDocumentTitle(`Playground — ${template.name} · lab.andromed`);
+
+  const shouldRenderEditor = isLargeScreen || mobilePanel === "editor";
+
+  useEffect(() => {
+    if (!shouldRenderEditor) return;
+    const id = window.requestAnimationFrame(() => {
+      monacoRef.current?.layout();
+    });
+    return () => window.cancelAnimationFrame(id);
+  }, [shouldRenderEditor, activeFile, mobilePanel, editorHeight]);
 
   const copyActiveFile = useCallback(async () => {
     const text = files[activeFile] ?? "";
@@ -279,7 +298,7 @@ function PlaygroundWorkspace({ hydrate }: { hydrate: PlaygroundHydrate | null })
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="flex h-dvh min-h-0 flex-col overflow-hidden bg-background">
       <input
         ref={zipInputRef}
         type="file"
@@ -434,14 +453,23 @@ function PlaygroundWorkspace({ hydrate }: { hydrate: PlaygroundHydrate | null })
                 className="flex-1 min-h-0"
               />
             </aside>
-            <div className="flex-1 min-w-0 min-h-[240px] flex flex-col overflow-hidden">
+            <div
+              ref={editorContainerRef}
+              className="relative flex-1 min-w-0 min-h-[240px] flex flex-col overflow-hidden"
+            >
+            {shouldRenderEditor ? (
             <MonacoEditor
-              height="100%"
+              height={editorHeight}
               language={getLanguage(activeFile)}
               value={files[activeFile] ?? ""}
               onChange={(value) => updateFile(activeFile, value ?? "")}
+              onMount={(instance) => {
+                monacoRef.current = instance;
+                window.requestAnimationFrame(() => instance.layout());
+              }}
               theme={isDark ? "vs-dark" : "vs"}
               options={{
+                readOnly: false,
                 minimap: { enabled: false },
                 fontSize: 14,
                 padding: { top: 16 },
@@ -451,6 +479,11 @@ function PlaygroundWorkspace({ hydrate }: { hydrate: PlaygroundHydrate | null })
                 automaticLayout: true,
               }}
             />
+            ) : (
+              <div className="flex items-center justify-center h-full bg-muted/30 text-muted-foreground text-sm">
+                Chargement de l’éditeur…
+              </div>
+            )}
             </div>
           </div>
         </div>
