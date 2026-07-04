@@ -230,5 +230,37 @@
     },
     "level": "debutant",
     "order": 8
+  },
+  {
+    "id": "bash-terminal-decouverte",
+    "title": "Bash : terminal simulé (ls, cd, pwd…)",
+    "description": "Découvrir un interpréteur Bash dynamique dans le navigateur — commandes classiques sur un système de fichiers virtuel.",
+    "instructions": "## Objectif\n\n1. Ouvrez le panneau **Aperçu** : un terminal Bash simulé s’affiche.\n2. Testez les commandes classiques :\n   - `ls` — liste le contenu du dossier courant (dynamique, pas une réponse figée)\n   - `cd Documents` puis `pwd` — navigation\n   - `cat notes.txt` — lire un fichier\n   - `mkdir projets` puis `ls` — le nouveau dossier apparaît\n   - `help` — liste les commandes disponibles\n3. Dans `shell.js`, lisez l’architecture : les commandes sont enregistrées via `registerCommand`, le moteur est testé par Vitest (`lib/bash-shell.test.ts`).\n4. La fonction `registerWhoami` est déjà esquissée : elle montre comment ajouter une commande personnalisée.\n\n**Concept :** le shell parse la ligne, cherche un handler dans un registre, exécute la logique sur un FS virtuel et met à jour l’état (ex. `cd` change le répertoire courant).",
+    "templateId": "bash",
+    "entryFile": "/shell.js",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/shell.js",
+        "substring": "registerCommand",
+        "successMessage": "Le registre dynamique registerCommand est documenté."
+      },
+      {
+        "type": "contains",
+        "file": "/shell.js",
+        "substring": "registerWhoami",
+        "successMessage": "La fonction registerWhoami est présente."
+      },
+      {
+        "type": "contains",
+        "file": "/shell.js",
+        "substring": "whoami",
+        "successMessage": "La commande whoami est référencée."
+      }
+    ],
+    "hint": "Tapez `ls` dans l’aperçu : vous verrez Documents et Downloads. Après `mkdir test`, `ls` affichera aussi test — preuve que la liste est calculée dynamiquement.",
+    "solutionSummary": "Le moteur `lib/bash-shell.ts` maintient un arbre de fichiers et un registre de commandes. Chaque handler reçoit les arguments et l’état courant ; `ls` lit réellement le dossier, `cd` met à jour `cwd`. Les tests Vitest couvrent ls, cd, mkdir, etc.",
+    "level": "debutant",
+    "order": 9
   }
 ]

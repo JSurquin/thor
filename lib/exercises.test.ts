@@ -13,7 +13,7 @@ import { TEMPLATES } from "./templates";
 describe("getExercises / getExerciseById", () => {
   it("retourne les exercices triés par order", () => {
     const list = getExercises();
-    expect(list.length).toBeGreaterThanOrEqual(8);
+    expect(list.length).toBeGreaterThanOrEqual(9);
     const orders = list.map((e) => e.order ?? 99);
     const sorted = [...orders].sort((a, b) => a - b);
     expect(orders).toEqual(sorted);

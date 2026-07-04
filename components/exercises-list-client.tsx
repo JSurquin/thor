@@ -52,6 +52,7 @@ const templateLabel: Record<ExerciseTemplateId, string> = {
   vue: "Vue",
   html: "HTML",
   javascript: "JavaScript",
+  bash: "Bash",
 };
 
 type LevelFilter = "all" | "debutant" | "intermediaire" | "avance";

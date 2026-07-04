@@ -7,8 +7,15 @@ import type {
 } from "./types";
 import data from "@/data/exercises.json";
 import { TEMPLATES, type TemplateId } from "./templates";
+import { BASH_TERMINAL_SHELL_JS } from "./bash-exercise-assets";
 
 export type { Exercise, ExerciseValidation };
+
+const BASH_EXERCISE_FILE_OVERRIDES: Record<string, Record<string, string>> = {
+  "bash-terminal-decouverte": {
+    "/shell.js": BASH_TERMINAL_SHELL_JS,
+  },
+};
 
 export function getExercises(): Exercise[] {
   return (data as Exercise[]).slice().sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
@@ -27,6 +34,12 @@ export function getExerciseInitialFiles(exercise: Exercise): Record<string, stri
     for (const [path, content] of Object.entries(exercise.initialFiles)) {
       const key = path.startsWith("/") ? path : `/${path}`;
       base[key] = content;
+    }
+  }
+  const assetOverrides = BASH_EXERCISE_FILE_OVERRIDES[exercise.id];
+  if (assetOverrides) {
+    for (const [path, content] of Object.entries(assetOverrides)) {
+      base[path] = content;
     }
   }
   return base;

@@ -34,7 +34,8 @@ export type ExerciseTemplateId =
   | "next"
   | "vue"
   | "html"
-  | "javascript";
+  | "javascript"
+  | "bash";
 
 /** Critère de validation mock : le code doit contenir cette chaîne (ex: "useState") */
 export interface ExerciseValidationContains {

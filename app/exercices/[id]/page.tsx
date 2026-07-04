@@ -71,6 +71,7 @@ import {
 import { useDocumentTitle } from "@/lib/hooks/use-document-title";
 import { useEditorShortcuts } from "@/lib/hooks/use-editor-shortcuts";
 import { ShortcutsHelpDialog } from "@/components/shortcuts-help-dialog";
+import { BashTerminalPreview } from "@/components/bash-terminal-preview";
 import { markExerciseCompleted } from "@/lib/progress-storage";
 import { toast } from "sonner";
 
@@ -248,9 +249,13 @@ function ExerciseWorkspaceInner({
   const sandpackFiles = useMemo(() => filesToSandpackFormat(files), [files]);
   const hasSandpack = templateSupportsSandpackPreview(exercise.templateId as TemplateId);
   const hasHtmlPreview = exercise.templateId === "html";
+  const hasBashPreview = exercise.templateId === "bash";
   const sandpackRuntimeTemplate = getSandpackTemplate(exercise.templateId as TemplateId);
 
   const previewContent = useMemo(() => {
+    if (hasBashPreview) {
+      return <BashTerminalPreview />;
+    }
     if (hasSandpack) {
       return (
         <SandpackRoot
@@ -281,7 +286,7 @@ function ExerciseWorkspaceInner({
         Aucun aperçu pour ce template.
       </div>
     );
-  }, [hasSandpack, hasHtmlPreview, sandpackFiles, sandpackRuntimeTemplate, files, isDark]);
+  }, [hasBashPreview, hasSandpack, hasHtmlPreview, sandpackFiles, sandpackRuntimeTemplate, files, isDark]);
 
   const tabs: { id: Panel; label: string; icon: React.ReactNode }[] = [
     { id: "instructions", label: "Énoncé", icon: <FileTextIcon className="size-4" /> },
