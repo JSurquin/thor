@@ -5,6 +5,8 @@ import type {
   ExerciseValidationMatches,
   ExerciseValidationNotContains,
 } from "./types";
+import type { ValidationMessages } from "./i18n";
+import { getValidationMessages, DEFAULT_LOCALE, type Locale } from "./i18n";
 import data from "@/data/exercises.json";
 import { TEMPLATES, type TemplateId } from "./templates";
 import { BASH_TERMINAL_SHELL_JS } from "./bash-exercise-assets";
@@ -90,7 +92,17 @@ export type ValidationResult =
 /** Validation mock in-memory : contains / not_contains / matches (regex). */
 export function validateExercise(
   exercise: Exercise,
-  files: Record<string, string>
+  files: Record<string, string>,
+  locale: Locale = DEFAULT_LOCALE
+): ValidationResult[] {
+  const msg = getValidationMessages(locale);
+  return validateExerciseWithMessages(exercise, files, msg);
+}
+
+export function validateExerciseWithMessages(
+  exercise: Exercise,
+  files: Record<string, string>,
+  msg: ValidationMessages
 ): ValidationResult[] {
   const results: ValidationResult[] = [];
   for (const rule of exercise.validation) {
@@ -100,16 +112,23 @@ export function validateExercise(
       const ok = content.includes(r.substring);
       results.push(
         ok
-          ? { ok: true, message: r.successMessage ?? "Critère respecté." }
-          : { ok: false, message: `Il manque : « ${r.substring} » dans ${r.file}.` }
+          ? { ok: true, message: r.successMessage ?? msg.criterionOk }
+          : {
+              ok: false,
+              message: msg.missingSubstring(r.substring, r.file),
+            }
       );
     } else if (rule.type === "not_contains") {
       const r = rule as ExerciseValidationNotContains;
       const ok = !content.includes(r.substring);
       results.push(
         ok
-          ? { ok: true, message: "Critère respecté." }
-          : { ok: false, message: r.failMessage ?? `« ${r.substring} » ne doit pas être dans ${r.file}.` }
+          ? { ok: true, message: msg.criterionOk }
+          : {
+              ok: false,
+              message:
+                r.failMessage ?? msg.mustNotContain(r.substring, r.file),
+            }
       );
     } else if (rule.type === "matches") {
       const r = rule as ExerciseValidationMatches;
@@ -119,19 +138,17 @@ export function validateExercise(
       } catch {
         results.push({
           ok: false,
-          message: `Motif regex invalide pour ${r.file}.`,
+          message: msg.invalidRegex(r.file),
         });
         continue;
       }
       const ok = re.test(content);
       results.push(
         ok
-          ? { ok: true, message: r.successMessage ?? "Expression respectée." }
+          ? { ok: true, message: r.successMessage ?? msg.expressionOk }
           : {
               ok: false,
-              message:
-                r.failMessage ??
-                `Le contenu de ${r.file} ne correspond pas au motif attendu.`,
+              message: r.failMessage ?? msg.patternMismatch(r.file),
             }
       );
     }

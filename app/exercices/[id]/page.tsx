@@ -74,16 +74,17 @@ import { ShortcutsHelpDialog } from "@/components/shortcuts-help-dialog";
 import { BashTerminalPreview } from "@/components/bash-terminal-preview";
 import { markExerciseCompleted } from "@/lib/progress-storage";
 import { toast } from "sonner";
+import { useLocale } from "@/components/locale-provider";
+import { localizeExercise } from "@/lib/i18n";
+import { LocaleSwitcher } from "@/components/locale-switcher";
+import { ExerciseCorrectionPanel } from "@/components/exercise-correction-panel";
+import { ExerciseEditorLoading } from "@/components/exercise-editor-loading";
 
 const MonacoEditor = dynamic(
   () => import("@monaco-editor/react").then((mod) => mod.default),
   {
     ssr: false,
-    loading: () => (
-      <div className="flex items-center justify-center h-full min-h-[280px] bg-muted/30 text-muted-foreground text-sm">
-        Chargement de l’éditeur…
-      </div>
-    ),
+    loading: () => <ExerciseEditorLoading />,
   }
 );
 
@@ -121,6 +122,12 @@ function ExerciseWorkspaceInner({
   exercise: Exercise;
   seed: ExerciseSeed | null;
 }) {
+  const { locale, messages } = useLocale();
+  const t = messages.exercise;
+  const localized = useMemo(
+    () => localizeExercise(exercise, locale),
+    [exercise, locale]
+  );
   const { resolvedTheme } = useTheme();
   const isDark = (resolvedTheme ?? "dark") === "dark";
 
@@ -151,32 +158,33 @@ function ExerciseWorkspaceInner({
     return filePaths[0]!;
   }, [filePaths, selectedFile]);
 
-  useDocumentTitle(`${exercise.title} — Exercices · lab.andromed`);
+  useDocumentTitle(`${localized.title} — Exercices · lab.andromed`);
 
   const copyCurrentFile = useCallback(async () => {
     const text = files[editorPath] ?? "";
+    const name = editorPath.replace(/^\//, "");
     try {
       await navigator.clipboard.writeText(text);
-      toast.success(`« ${editorPath.replace(/^\//, "")} » copié`);
+      toast.success(t.copyFileSuccess(name));
     } catch {
-      toast.error("Copie impossible");
+      toast.error(t.copyFileError);
     }
-  }, [files, editorPath]);
+  }, [files, editorPath, t]);
 
   const copyShareLink = useCallback(async () => {
     const tok = await buildExerciseShareToken(exercise.id, files, editorPath);
     if (!tok) {
-      toast.error("Lien trop long pour le partage (réduisez le code).");
+      toast.error(t.shareTooLong);
       return;
     }
     const url = buildShareUrl(`/exercices/${exercise.id}`, tok);
     try {
       await navigator.clipboard.writeText(url);
-      toast.success("Lien de partage copié");
+      toast.success(t.shareSuccess);
     } catch {
-      toast.error("Copie du lien impossible");
+      toast.error(t.shareError);
     }
-  }, [exercise.id, files, editorPath]);
+  }, [exercise.id, files, editorPath, t]);
 
   useEditorShortcuts({
     onCopyFile: () => {
@@ -205,21 +213,18 @@ function ExerciseWorkspaceInner({
   });
 
   useEffect(() => {
-    const t = window.setTimeout(() => {
+    const timer = window.setTimeout(() => {
       const ok = writeExerciseDraft({
         exerciseId: exercise.id,
         files,
         selectedFile: editorPath,
       });
       if (!ok) {
-        toast.message(
-          "Brouillon non sauvegardé (trop volumineux pour le stockage local)",
-          { duration: 4_000 }
-        );
+        toast.message(t.draftNotSaved, { duration: 4_000 });
       }
     }, 650);
-    return () => window.clearTimeout(t);
-  }, [exercise.id, files, editorPath]);
+    return () => window.clearTimeout(timer);
+  }, [exercise.id, files, editorPath, t.draftNotSaved]);
 
   const updateFile = useCallback((path: string, content: string) => {
     setFiles((prev) => ({ ...prev, [path]: content }));
@@ -231,20 +236,20 @@ function ExerciseWorkspaceInner({
     setFiles(getExerciseInitialFiles(exercise));
     setSelectedFile(getExerciseEntryFile(exercise));
     setValidationResults(null);
-    toast.success("Code réinitialisé");
-  }, [exercise]);
+    toast.success(t.resetSuccess);
+  }, [exercise, t.resetSuccess]);
 
   const handleValidate = useCallback(() => {
-    const results = validateExercise(exercise, files);
+    const results = validateExercise(exercise, files, locale);
     setValidationResults(results);
     if (isExerciseValid(results)) {
       markExerciseCompleted(exercise.id);
-      toast.success("Tous les critères sont validés !");
+      toast.success(t.validateSuccess);
     } else {
       const firstFail = results.find((r) => !r.ok);
-      toast.error(firstFail && !firstFail.ok ? firstFail.message : "Corrigez les erreurs.");
+      toast.error(firstFail && !firstFail.ok ? firstFail.message : t.validateError);
     }
-  }, [exercise, files]);
+  }, [exercise, files, locale, t.validateSuccess, t.validateError]);
 
   const sandpackFiles = useMemo(() => filesToSandpackFormat(files), [files]);
   const hasSandpack = templateSupportsSandpackPreview(exercise.templateId as TemplateId);
@@ -283,19 +288,19 @@ function ExerciseWorkspaceInner({
     }
     return (
       <div className="min-h-[280px] flex items-center justify-center rounded-lg border border-dashed border-border bg-muted/20 text-muted-foreground text-sm">
-        Aucun aperçu pour ce template.
+        {t.noPreview}
       </div>
     );
-  }, [hasBashPreview, hasSandpack, hasHtmlPreview, sandpackFiles, sandpackRuntimeTemplate, files, isDark]);
+  }, [hasBashPreview, hasSandpack, hasHtmlPreview, sandpackFiles, sandpackRuntimeTemplate, files, isDark, t.noPreview]);
 
   const tabs: { id: Panel; label: string; icon: React.ReactNode }[] = [
-    { id: "instructions", label: "Énoncé", icon: <FileTextIcon className="size-4" /> },
-    { id: "editor", label: "Code", icon: <Code2Icon className="size-4" /> },
-    { id: "preview", label: "Aperçu", icon: <LayoutIcon className="size-4" /> },
+    { id: "instructions", label: t.tabInstructions, icon: <FileTextIcon className="size-4" /> },
+    { id: "editor", label: t.tabEditor, icon: <Code2Icon className="size-4" /> },
+    { id: "preview", label: t.tabPreview, icon: <LayoutIcon className="size-4" /> },
   ];
 
   const hasSolution =
-    Boolean(exercise.solutionSummary?.trim()) ||
+    Boolean(localized.solutionSummary?.trim()) ||
     Boolean(
       exercise.solutionFiles &&
         Object.keys(exercise.solutionFiles).length > 0
@@ -307,26 +312,27 @@ function ExerciseWorkspaceInner({
         <div className="mx-auto max-w-[1920px] flex items-center justify-between gap-2 sm:gap-4 px-3 sm:px-4 py-2 sm:py-3">
           <div className="flex items-center gap-2 min-w-0">
             <Button variant="ghost" size="icon" className="shrink-0 touch-manipulation" asChild>
-              <Link href="/exercices" aria-label="Retour aux exercices">
+              <Link href="/exercices" aria-label={t.backToList}>
                 <ChevronLeftIcon className="size-5" />
               </Link>
             </Button>
             <h1 className="font-semibold text-foreground truncate text-sm sm:text-base">
-              {exercise.title}
+              {localized.title}
             </h1>
           </div>
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 flex-wrap justify-end">
+            <LocaleSwitcher className="hidden sm:flex w-[130px] min-h-[36px] h-9" />
             <Button
               variant="outline"
               size="sm"
               onClick={() => setHelpOpen(true)}
               className="gap-1.5 touch-manipulation"
-              aria-label="Raccourcis clavier"
+              aria-label={t.help}
             >
               <KeyboardIcon className="size-4 sm:hidden" />
-              <span className="hidden sm:inline">Aide</span>
+              <span className="hidden sm:inline">{t.help}</span>
             </Button>
-            {exercise.hint ? (
+            {localized.hint ? (
               <Button
                 variant="outline"
                 size="sm"
@@ -334,7 +340,7 @@ function ExerciseWorkspaceInner({
                 className="gap-1.5 touch-manipulation"
               >
                 <LightbulbIcon className="size-4" />
-                <span className="hidden sm:inline">Indice</span>
+                <span className="hidden sm:inline">{t.hint}</span>
               </Button>
             ) : null}
             {hasSolution ? (
@@ -345,7 +351,7 @@ function ExerciseWorkspaceInner({
                 className="gap-1.5 touch-manipulation"
               >
                 <BookOpenCheckIcon className="size-4" />
-                <span className="hidden sm:inline">Solution</span>
+                <span className="hidden sm:inline">{t.solution}</span>
               </Button>
             ) : null}
             <Button
@@ -353,21 +359,21 @@ function ExerciseWorkspaceInner({
               size="sm"
               onClick={() => void copyShareLink()}
               className="gap-1.5 touch-manipulation"
-              aria-label="Copier le lien de partage"
+              aria-label={t.share}
             >
               <Link2Icon className="size-4" />
-              <span className="hidden sm:inline">Partager</span>
+              <span className="hidden sm:inline">{t.share}</span>
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={() => void copyCurrentFile()}
               className="gap-1.5 touch-manipulation"
-              aria-label="Copier le fichier ouvert"
+              aria-label={t.copy}
               data-testid="exercise-copy-file"
             >
               <ClipboardCopyIcon className="size-4" />
-              <span className="hidden sm:inline">Copier</span>
+              <span className="hidden sm:inline">{t.copy}</span>
             </Button>
             <Button
               variant="outline"
@@ -376,7 +382,7 @@ function ExerciseWorkspaceInner({
               className="gap-1.5 touch-manipulation"
             >
               <RotateCcwIcon className="size-4" />
-              <span className="hidden sm:inline">Reset</span>
+              <span className="hidden sm:inline">{t.reset}</span>
             </Button>
             <Button
               variant="outline"
@@ -386,7 +392,7 @@ function ExerciseWorkspaceInner({
               data-testid="exercise-export-offline"
             >
               <WifiOffIcon className="size-4" />
-              <span className="hidden sm:inline">Hors ligne</span>
+              <span className="hidden sm:inline">{t.offline}</span>
             </Button>
             <Button
               size="sm"
@@ -394,7 +400,7 @@ function ExerciseWorkspaceInner({
               className="gap-1.5 touch-manipulation"
             >
               <CheckCircle2Icon className="size-4" />
-              <span className="hidden sm:inline">Valider</span>
+              <span className="hidden sm:inline">{t.validate}</span>
             </Button>
           </div>
         </div>
@@ -409,7 +415,7 @@ function ExerciseWorkspaceInner({
                 href="/"
                 className="hover:text-foreground underline-offset-2 hover:underline"
               >
-                Accueil
+                {t.home}
               </Link>
             </li>
             <li aria-hidden="true">/</li>
@@ -418,12 +424,12 @@ function ExerciseWorkspaceInner({
                 href="/exercices"
                 className="hover:text-foreground underline-offset-2 hover:underline"
               >
-                Exercices
+                {t.exercisesBreadcrumb}
               </Link>
             </li>
             <li aria-hidden="true">/</li>
             <li className="min-w-0 truncate font-medium text-foreground">
-              {exercise.title}
+              {localized.title}
             </li>
           </ol>
         </nav>
@@ -458,12 +464,12 @@ function ExerciseWorkspaceInner({
           <div className="p-3 sm:p-4 border-b border-border/40 shrink-0">
             <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
               <FileTextIcon className="size-4" />
-              Énoncé
+              {t.instructionsHeading}
             </h2>
           </div>
           <div className="flex-1 overflow-auto p-3 sm:p-4 min-h-[200px] lg:min-h-0">
             <div className="prose prose-sm dark:prose-invert max-w-none text-foreground">
-              {exercise.instructions.split("\n").map((line, i) => (
+              {localized.instructions.split("\n").map((line, i) => (
                 <p key={i} className="whitespace-pre-wrap text-sm leading-relaxed mb-2 last:mb-0">
                   {line.startsWith("##") ? (
                     <strong className="block mt-3 mb-1 text-foreground">{line.replace(/^#+\s*/, "")}</strong>
@@ -528,7 +534,7 @@ function ExerciseWorkspaceInner({
         >
           <div className="px-3 py-2 border-b border-border/40 flex items-center gap-2 shrink-0 min-h-[44px]">
             <LayoutIcon className="size-4 text-muted-foreground" />
-            <span className="text-sm font-medium text-muted-foreground">Aperçu</span>
+            <span className="text-sm font-medium text-muted-foreground">{t.previewHeading}</span>
           </div>
           <div className="flex-1 overflow-auto p-3 sm:p-4 min-h-[240px] sm:min-h-[280px]">
             {previewContent}
@@ -536,27 +542,17 @@ function ExerciseWorkspaceInner({
         </section>
       </div>
 
-      {validationResults && (
-        <div
-          role="status"
-          aria-live="polite"
-          aria-atomic="true"
-          className="border-t border-border/40 bg-muted/30 px-4 py-3 text-sm"
-        >
-          {Array.isArray(validationResults) ? (
-            <ul className="space-y-1 max-h-24 overflow-auto">
-              {validationResults.map((r, i) => (
-                <li
-                  key={i}
-                  className={r.ok ? "text-green-600 dark:text-green-400" : "text-destructive"}
-                >
-                  {r.ok ? "✓" : "✗"} {r.message}
-                </li>
-              ))}
-            </ul>
-          ) : null}
-        </div>
-      )}
+      {validationResults ? (
+        <ExerciseCorrectionPanel
+          results={validationResults}
+          labels={{
+            title: t.correctionTitle,
+            progress: t.correctionProgress,
+            allPassed: t.correctionAllPassed,
+            someFailed: t.correctionSomeFailed,
+          }}
+        />
+      ) : null}
 
       <OfflineExportDialog
         variant="exercise"
@@ -580,17 +576,17 @@ function ExerciseWorkspaceInner({
         ]}
       />
 
-      {exercise.hint ? (
+      {localized.hint ? (
         <Dialog open={hintOpen} onOpenChange={setHintOpen}>
           <DialogContent className="sm:max-w-lg">
             <DialogHeader>
-              <DialogTitle>Indice</DialogTitle>
+              <DialogTitle>{t.hintDialogTitle}</DialogTitle>
               <DialogDescription className="sr-only">
-                Indice pour cet exercice, sans la solution complète
+                {t.hintDialogDescription}
               </DialogDescription>
             </DialogHeader>
             <p className="text-sm whitespace-pre-wrap text-foreground">
-              {exercise.hint}
+              {localized.hint}
             </p>
           </DialogContent>
         </Dialog>
@@ -603,20 +599,19 @@ function ExerciseWorkspaceInner({
         >
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Afficher la solution ?</AlertDialogTitle>
+              <AlertDialogTitle>{t.solutionConfirmTitle}</AlertDialogTitle>
               <AlertDialogDescription>
-                La solution complète sera affichée. Vous pouvez fermer la
-                fenêtre et continuer à travailler sur votre version.
+                {t.solutionConfirmDescription}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Annuler</AlertDialogCancel>
+              <AlertDialogCancel>{messages.exercises.cancel}</AlertDialogCancel>
               <AlertDialogAction
                 onClick={() => {
                   setSolutionOpen(true);
                 }}
               >
-                Afficher
+                {t.solutionConfirmShow}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -627,15 +622,15 @@ function ExerciseWorkspaceInner({
         <Dialog open={solutionOpen} onOpenChange={setSolutionOpen}>
           <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Solution</DialogTitle>
+              <DialogTitle>{t.solutionDialogTitle}</DialogTitle>
               <DialogDescription className="sr-only">
-                Récapitulatif et fichiers de référence pour cet exercice
+                {t.solutionDialogDescription}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 text-sm">
-              {exercise.solutionSummary ? (
+              {localized.solutionSummary ? (
                 <p className="whitespace-pre-wrap text-foreground">
-                  {exercise.solutionSummary}
+                  {localized.solutionSummary}
                 </p>
               ) : null}
               {exercise.solutionFiles &&
@@ -662,6 +657,8 @@ function ExerciseWorkspaceInner({
 }
 
 function ExerciseWithPersistence({ exercise }: { exercise: Exercise }) {
+  const { messages } = useLocale();
+  const t = messages.exercise;
   const [view, setView] = useState<ExerciseView>({ phase: "loading" });
 
   useEffect(() => {
@@ -698,7 +695,7 @@ function ExerciseWithPersistence({ exercise }: { exercise: Exercise }) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-3 bg-background">
         <Spinner className="size-10 text-primary" />
-        <p className="text-sm text-muted-foreground">Chargement…</p>
+        <p className="text-sm text-muted-foreground">{t.loading}</p>
       </div>
     );
   }
@@ -708,9 +705,9 @@ function ExerciseWithPersistence({ exercise }: { exercise: Exercise }) {
     return (
       <ResumeLocalDraftDialog
         open
-        title="Reprendre votre brouillon ?"
-        description={`Une sauvegarde locale pour cet exercice existe (${formatSavedAt(draft.savedAt)}).`}
-        freshLabel="Repartir de l’énoncé"
+        title={t.resumeDraftTitle}
+        description={t.resumeDraftDescription(formatSavedAt(draft.savedAt))}
+        freshLabel={t.resumeDraftFresh}
         onResume={() =>
           setView({
             phase: "run",
@@ -730,15 +727,17 @@ function ExerciseWithPersistence({ exercise }: { exercise: Exercise }) {
 
 export default function ExercisePage() {
   const params = useParams();
+  const { messages } = useLocale();
+  const t = messages.exercise;
   const id = typeof params.id === "string" ? params.id : "";
   const exercise = useMemo(() => getExerciseById(id), [id]);
 
   if (!exercise) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-4 bg-background">
-        <p className="text-muted-foreground">Exercice introuvable.</p>
+        <p className="text-muted-foreground">{t.notFound}</p>
         <Button asChild>
-          <Link href="/exercices">Retour aux exercices</Link>
+          <Link href="/exercices">{t.backToExercises}</Link>
         </Button>
       </div>
     );

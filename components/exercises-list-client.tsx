@@ -10,6 +10,7 @@ import {
   RotateCcwIcon,
 } from "lucide-react";
 import type { Exercise, ExerciseTemplateId } from "@/lib/types";
+import { localizeExercise } from "@/lib/i18n";
 import {
   readCompletedExerciseIds,
   clearExerciseProgress,
@@ -39,30 +40,10 @@ import {
   sortExercises,
   type ExerciseSortMode,
 } from "@/lib/exercise-list-utils";
-
-const levelLabel: Record<string, string> = {
-  debutant: "Débutant",
-  intermediaire: "Intermédiaire",
-  avance: "Avancé",
-};
-
-const templateLabel: Record<ExerciseTemplateId, string> = {
-  react: "React",
-  next: "Next.js",
-  vue: "Vue",
-  html: "HTML",
-  javascript: "JavaScript",
-  bash: "Bash",
-};
+import { useLocale } from "@/components/locale-provider";
 
 type LevelFilter = "all" | "debutant" | "intermediaire" | "avance";
 type TemplateFilter = "all" | ExerciseTemplateId;
-
-const sortLabel: Record<ExerciseSortMode, string> = {
-  order: "Ordre du parcours",
-  title: "Titre (A–Z)",
-  level: "Niveau",
-};
 
 function normalize(s: string): string {
   return s
@@ -76,6 +57,30 @@ type ExercisesListClientProps = {
 };
 
 export function ExercisesListClient({ exercises }: ExercisesListClientProps) {
+  const { locale, messages } = useLocale();
+  const t = messages.exercises;
+
+  const levelLabel: Record<string, string> = {
+    debutant: t.levelDebutant,
+    intermediaire: t.levelIntermediaire,
+    avance: t.levelAvance,
+  };
+
+  const templateLabel: Record<ExerciseTemplateId, string> = {
+    react: t.templateReact,
+    next: t.templateNext,
+    vue: t.templateVue,
+    html: t.templateHtml,
+    javascript: t.templateJavascript,
+    bash: t.templateBash,
+  };
+
+  const sortLabel: Record<ExerciseSortMode, string> = {
+    order: t.sortOrder,
+    title: t.sortTitle,
+    level: t.sortLevel,
+  };
+
   const [query, setQuery] = useState("");
   const [level, setLevel] = useState<LevelFilter>("all");
   const [templateId, setTemplateId] = useState<TemplateFilter>("all");
@@ -116,21 +121,23 @@ export function ExercisesListClient({ exercises }: ExercisesListClientProps) {
       if (level !== "all" && ex.level !== level) return false;
       if (templateId !== "all" && ex.templateId !== templateId) return false;
       if (!q) return true;
-      const hay = normalize(`${ex.title} ${ex.description}`);
+      const hay = normalize(
+        `${localizeExercise(ex, locale).title} ${localizeExercise(ex, locale).description}`
+      );
       return hay.includes(q);
     });
     return sortExercises(list, sortMode);
-  }, [exercises, query, level, templateId, sortMode]);
+  }, [exercises, query, level, templateId, sortMode, locale]);
 
   return (
     <>
       {total > 0 ? (
         <div className="mb-6 rounded-xl border border-border/50 bg-card/40 px-4 py-3 space-y-2">
           <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
-            <span className="text-muted-foreground">Progression locale</span>
+            <span className="text-muted-foreground">{t.localProgress}</span>
             <div className="flex items-center gap-2">
               <span className="font-medium text-foreground tabular-nums">
-                {doneCount} / {total} validés
+                {t.validatedCount(doneCount, total)}
               </span>
               {doneCount > 0 ? (
                 <Button
@@ -139,10 +146,10 @@ export function ExercisesListClient({ exercises }: ExercisesListClientProps) {
                   size="sm"
                   className="h-8 gap-1.5 text-destructive hover:text-destructive border-destructive/40"
                   onClick={() => setResetOpen(true)}
-                  aria-label="Réinitialiser la progression sur cet appareil"
+                  aria-label={t.resetProgress}
                 >
                   <RotateCcwIcon className="size-3.5" />
-                  <span className="hidden sm:inline">Réinitialiser</span>
+                  <span className="hidden sm:inline">{t.resetProgress}</span>
                 </Button>
               ) : null}
             </div>
@@ -154,25 +161,23 @@ export function ExercisesListClient({ exercises }: ExercisesListClientProps) {
       <AlertDialog open={resetOpen} onOpenChange={setResetOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Réinitialiser la progression ?</AlertDialogTitle>
+            <AlertDialogTitle>{t.resetProgressTitle}</AlertDialogTitle>
             <AlertDialogDescription>
-              Les coches « validés » sur cette liste seront effacées sur cet
-              appareil (stockage local du navigateur). Vos brouillons d’exercices
-              ne sont pas supprimés.
+              {t.resetProgressDescription}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogCancel>{t.cancel}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={() => {
                 clearExerciseProgress();
                 refreshProgress();
                 setResetOpen(false);
-                toast.success("Progression réinitialisée");
+                toast.success(t.resetSuccess);
               }}
             >
-              Réinitialiser
+              {t.reset}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -186,11 +191,11 @@ export function ExercisesListClient({ exercises }: ExercisesListClientProps) {
           />
           <Input
             type="search"
-            placeholder="Rechercher par titre ou description…"
+            placeholder={t.searchPlaceholder}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="pl-9 min-h-[44px]"
-            aria-label="Rechercher un exercice"
+            aria-label={t.searchPlaceholder}
             data-testid="exercises-search"
           />
         </div>
@@ -200,12 +205,12 @@ export function ExercisesListClient({ exercises }: ExercisesListClientProps) {
         >
           <SelectTrigger
             className="w-full sm:w-[200px] min-h-[44px]"
-            aria-label="Filtrer par niveau"
+            aria-label={t.allLevels}
           >
-            <SelectValue placeholder="Niveau" />
+            <SelectValue placeholder={t.allLevels} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Tous les niveaux</SelectItem>
+            <SelectItem value="all">{t.allLevels}</SelectItem>
             <SelectItem value="debutant">{levelLabel.debutant}</SelectItem>
             <SelectItem value="intermediaire">{levelLabel.intermediaire}</SelectItem>
             <SelectItem value="avance">{levelLabel.avance}</SelectItem>
@@ -217,12 +222,12 @@ export function ExercisesListClient({ exercises }: ExercisesListClientProps) {
         >
           <SelectTrigger
             className="w-full sm:w-[220px] min-h-[44px]"
-            aria-label="Filtrer par template"
+            aria-label={t.allTemplates}
           >
-            <SelectValue placeholder="Template" />
+            <SelectValue placeholder={t.allTemplates} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Tous les templates</SelectItem>
+            <SelectItem value="all">{t.allTemplates}</SelectItem>
             {(Object.keys(templateLabel) as ExerciseTemplateId[]).map((id) => (
               <SelectItem key={id} value={id}>
                 {templateLabel[id]}
@@ -236,10 +241,10 @@ export function ExercisesListClient({ exercises }: ExercisesListClientProps) {
         >
           <SelectTrigger
             className="w-full sm:w-[220px] min-h-[44px]"
-            aria-label="Trier la liste"
+            aria-label={sortLabel.order}
             data-testid="exercises-sort"
           >
-            <SelectValue placeholder="Tri" />
+            <SelectValue placeholder={sortLabel.order} />
           </SelectTrigger>
           <SelectContent>
             {(Object.keys(sortLabel) as ExerciseSortMode[]).map((key) => (
@@ -254,6 +259,7 @@ export function ExercisesListClient({ exercises }: ExercisesListClientProps) {
       <ul className="grid gap-3 sm:gap-4">
         {filtered.map((ex) => {
           const done = doneIds.includes(ex.id);
+          const localized = localizeExercise(ex, locale);
           return (
             <li key={ex.id}>
               <Link
@@ -264,17 +270,17 @@ export function ExercisesListClient({ exercises }: ExercisesListClientProps) {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       <h2 className="font-semibold text-foreground text-base sm:text-lg">
-                        {ex.title}
+                        {localized.title}
                       </h2>
                       {done ? (
                         <CheckCircle2Icon
                           className="size-5 text-green-600 dark:text-green-400 shrink-0"
-                          aria-label="Exercice validé"
+                          aria-label={t.exerciseValidated}
                         />
                       ) : null}
                     </div>
                     <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                      {ex.description}
+                      {localized.description}
                     </p>
                     <div className="flex flex-wrap gap-2 mt-2">
                       {ex.level && (
@@ -300,8 +306,7 @@ export function ExercisesListClient({ exercises }: ExercisesListClientProps) {
       {filtered.length === 0 && exercises.length > 0 ? (
         <p className="text-center text-muted-foreground py-12 flex flex-col items-center gap-2">
           <ClipboardListIcon className="size-10 opacity-40" aria-hidden />
-          Aucun exercice ne correspond à ces critères. Modifiez la recherche, le tri ou les
-          filtres.
+          {t.noResults}
         </p>
       ) : null}
     </>

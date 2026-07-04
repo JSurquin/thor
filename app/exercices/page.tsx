@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { Code2Icon, ClipboardListIcon } from "lucide-react";
+import { Code2Icon } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ExercisesListClient } from "@/components/exercises-list-client";
+import { ExercisesPageIntro } from "@/components/exercises-page-intro";
 import { getExercises } from "@/lib/exercises";
 
 export const metadata = {
@@ -46,19 +47,7 @@ export default function ExercicesListPage() {
       </header>
 
       <main className="flex-1 mx-auto max-w-4xl w-full px-4 sm:px-6 py-6 sm:py-10">
-        <section className="flex items-center gap-2 sm:gap-3 mb-6 sm:mb-8">
-          <div className="size-10 sm:size-12 rounded-xl bg-primary/15 text-primary flex items-center justify-center shrink-0">
-            <ClipboardListIcon className="size-5 sm:size-6" />
-          </div>
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-              Exercices de code
-            </h1>
-            <p className="text-sm text-muted-foreground mt-0.5">
-              Choisissez un exercice, codez dans l’éditeur et validez votre solution.
-            </p>
-          </div>
-        </section>
+        <ExercisesPageIntro />
 
         {exercises.length > 0 ? (
           <ExercisesListClient exercises={exercises} />

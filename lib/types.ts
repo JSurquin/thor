@@ -71,10 +71,23 @@ export type ExerciseValidation =
   | ExerciseValidationNotContains
   | ExerciseValidationMatches;
 
+/** Champs traduisibles optionnels (clé = code langue fr | pl | de | es). */
+export interface ExerciseTranslation {
+  title?: string;
+  description?: string;
+  instructions?: string;
+  hint?: string;
+  solutionSummary?: string;
+}
+
 export interface Exercise {
   id: string;
   title: string;
   description: string;
+  /** Traductions optionnelles par locale (fr, pl, de, es). */
+  translations?: Partial<
+    Record<"fr" | "pl" | "de" | "es", ExerciseTranslation>
+  >;
   /** Instructions markdown ou texte affichées au-dessus de l’éditeur */
   instructions: string;
   /** Template de base (react, next, vue, html, javascript) */
