@@ -99,4 +99,21 @@ export const fr: Messages = {
     exercisesBreadcrumb: "Exercices",
     languageLabel: "Langue",
   },
+  remoteLab: {
+    header: (image, providerLabel) =>
+      `Lab cloud — ${image} (${providerLabel})`,
+    description:
+      "Environnement Linux réel dans le cloud : Docker, Kubernetes ou commandes système, sans rien installer sur votre machine. La session démarre à la demande et s’arrête automatiquement.",
+    billingInfo: (usdPerMinute, maxMinutes) =>
+      `Estimation : ~${usdPerMinute} USD/minute, plafond ${maxMinutes} min par session.`,
+    billingNote:
+      "Facturation à la minute (arrêt automatique à la fin de l’exercice). Azure B-series ou AWS t4g.micro selon disponibilité.",
+    startLab: "Démarrer le lab",
+    stopLab: "Arrêter le lab",
+    startError: "Impossible de démarrer le lab pour le moment.",
+    sessionReady: (sessionId) =>
+      `Session prête (${sessionId}). Connexion terminal à brancher.`,
+    terminalPlaceholder:
+      "Le terminal WebSocket (xterm.js) sera affiché ici une fois l’orchestrateur Azure/AWS connecté.",
+  },
 };

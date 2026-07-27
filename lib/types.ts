@@ -37,6 +37,21 @@ export type ExerciseTemplateId =
   | "javascript"
   | "bash";
 
+/** Mode d'exécution : simulé (navigateur) ou remote (VM/conteneur cloud). */
+export type ExerciseRuntimeKind = "simulated" | "remote";
+
+export interface ExerciseRuntimeConfig {
+  kind: ExerciseRuntimeKind;
+  /** Image VM ou conteneur (ex. ubuntu-22.04-minimal, docker-in-docker). */
+  image?: string;
+  /** Fournisseur cloud préféré (facturation à la minute). */
+  provider?: "azure" | "aws";
+  /** Durée max de session en minutes (plafond de facturation). */
+  maxMinutes?: number;
+  /** Capacités requises sur la machine distante. */
+  capabilities?: ("docker" | "kubernetes" | "systemd")[];
+}
+
 /** Critère de validation mock : le code doit contenir cette chaîne (ex: "useState") */
 export interface ExerciseValidationContains {
   type: "contains";
@@ -108,4 +123,6 @@ export interface Exercise {
   solutionSummary?: string;
   /** Fichiers « solution » (affichés après confirmation) */
   solutionFiles?: Record<string, string>;
+  /** Environnement d'exécution (simulé ou lab cloud). Absent = simulé pour bash. */
+  runtime?: ExerciseRuntimeConfig;
 }

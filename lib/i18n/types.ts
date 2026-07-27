@@ -100,4 +100,15 @@ export interface Messages {
     exercisesBreadcrumb: string;
     languageLabel: string;
   };
+  remoteLab: {
+    header: (image: string, providerLabel: string) => string;
+    description: string;
+    billingInfo: (usdPerMinute: string, maxMinutes: string) => string;
+    billingNote: string;
+    startLab: string;
+    stopLab: string;
+    startError: string;
+    sessionReady: (sessionId: string) => string;
+    terminalPlaceholder: string;
+  };
 }

@@ -84,7 +84,11 @@ import {
   useIsLargeScreen,
 } from "@/lib/hooks/use-container-height";
 import { ShortcutsHelpDialog } from "@/components/shortcuts-help-dialog";
-import { BashTerminalPreview } from "@/components/bash-terminal-preview";
+import { ExerciseTerminalPreview } from "@/components/exercise-terminal-preview";
+import {
+  exerciseUsesTerminalPreview,
+  resolveExerciseRuntime,
+} from "@/lib/exercises";
 import { markExerciseCompleted } from "@/lib/progress-storage";
 import { toast } from "sonner";
 import { useLocale } from "@/components/locale-provider";
@@ -316,14 +320,21 @@ function ExerciseWorkspaceInner({
   }, [exercise, files, locale, isLargeScreen, t.validateSuccess, t.validateError]);
 
   const sandpackFiles = useMemo(() => filesToSandpackFormat(files), [files]);
+  const exerciseRuntime = useMemo(
+    () => resolveExerciseRuntime(exercise),
+    [exercise]
+  );
+  const hasTerminalPreview = exerciseUsesTerminalPreview(
+    exercise.templateId,
+    exerciseRuntime
+  );
   const hasSandpack = templateSupportsSandpackPreview(exercise.templateId as TemplateId);
   const hasHtmlPreview = exercise.templateId === "html";
-  const hasBashPreview = exercise.templateId === "bash";
   const sandpackRuntimeTemplate = getSandpackTemplate(exercise.templateId as TemplateId);
 
   const previewContent = useMemo(() => {
-    if (hasBashPreview) {
-      return <BashTerminalPreview />;
+    if (hasTerminalPreview) {
+      return <ExerciseTerminalPreview exercise={exercise} />;
     }
     if (hasSandpack) {
       return (
@@ -355,7 +366,7 @@ function ExerciseWorkspaceInner({
         {t.noPreview}
       </div>
     );
-  }, [hasBashPreview, hasSandpack, hasHtmlPreview, sandpackFiles, sandpackRuntimeTemplate, files, isDark, t.noPreview]);
+  }, [hasTerminalPreview, hasSandpack, hasHtmlPreview, sandpackFiles, sandpackRuntimeTemplate, files, isDark, t.noPreview, exercise]);
 
   const tabs: { id: Panel; label: string; icon: React.ReactNode }[] = [
     { id: "instructions", label: t.tabInstructions, icon: <FileTextIcon className="size-4" /> },

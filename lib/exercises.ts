@@ -10,8 +10,15 @@ import { getValidationMessages, DEFAULT_LOCALE, type Locale } from "./i18n";
 import data from "@/data/exercises.json";
 import { TEMPLATES, type TemplateId } from "./templates";
 import { BASH_TERMINAL_SHELL_JS } from "./bash-exercise-assets";
+import {
+  resolveExerciseRuntime,
+  exerciseUsesTerminalPreview,
+  type ResolvedExerciseRuntime,
+} from "./lab-runtime";
 
 export type { Exercise, ExerciseValidation };
+export type { ResolvedExerciseRuntime };
+export { resolveExerciseRuntime, exerciseUsesTerminalPreview };
 
 const BASH_EXERCISE_FILE_OVERRIDES: Record<string, Record<string, string>> = {
   "bash-terminal-decouverte": {
