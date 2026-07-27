@@ -307,7 +307,7 @@ function PlaygroundWorkspace({ hydrate }: { hydrate: PlaygroundHydrate | null })
         onChange={onZipInputChange}
       />
       <header className="border-b border-border/40 bg-background/95 backdrop-blur sticky top-0 z-50 shrink-0 safe-area-inset-top">
-        <div className="mx-auto max-w-[1920px] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 px-3 sm:px-4 py-2 sm:py-3">
+        <div className="mx-auto max-w-[1920px] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 px-3 sm:px-4 py-2 sm:py-3 min-w-0">
           <Link
             href="/"
             className="flex items-center gap-2 text-foreground hover:opacity-90 min-w-0 shrink-0"
@@ -319,7 +319,7 @@ function PlaygroundWorkspace({ hydrate }: { hydrate: PlaygroundHydrate | null })
             <span className="text-muted-foreground text-sm hidden sm:inline shrink-0">— Playground</span>
           </Link>
 
-          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap min-h-[44px]">
+          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 overflow-x-auto flex-nowrap sm:flex-wrap sm:overflow-visible min-h-[44px] -mx-3 px-3 sm:mx-0 sm:px-0 pb-0.5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden [&>*]:shrink-0">
             <Select
               value={templateId}
               onValueChange={(v) => setTemplate(v as TemplateId)}

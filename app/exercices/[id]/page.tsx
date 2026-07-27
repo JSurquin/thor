@@ -384,18 +384,18 @@ function ExerciseWorkspaceInner({
   return (
     <div className="flex h-dvh min-h-0 flex-col overflow-hidden bg-background">
       <header className="border-b border-border/40 bg-background/95 backdrop-blur sticky top-0 z-50 shrink-0 safe-area-inset-top">
-        <div className="mx-auto max-w-[1920px] flex items-center justify-between gap-2 sm:gap-4 px-3 sm:px-4 py-2 sm:py-3">
+        <div className="mx-auto max-w-[1920px] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 px-3 sm:px-4 py-2 sm:py-3 min-w-0">
           <div className="flex items-center gap-2 min-w-0">
             <Button variant="ghost" size="icon" className="shrink-0 touch-manipulation" asChild>
               <Link href="/exercices" aria-label={t.backToList}>
                 <ChevronLeftIcon className="size-5" />
               </Link>
             </Button>
-            <h1 className="font-semibold text-foreground truncate text-sm sm:text-base">
+            <h1 className="font-semibold text-foreground truncate text-sm sm:text-base min-w-0">
               {localized.title}
             </h1>
           </div>
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 flex-wrap justify-end">
+          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 overflow-x-auto flex-nowrap sm:flex-wrap sm:overflow-visible sm:justify-end -mx-3 px-3 sm:mx-0 sm:px-0 pb-0.5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden [&>*]:shrink-0">
             <LocaleSwitcher className="hidden sm:flex w-[130px] min-h-[36px] h-9" />
             <Button
               variant="outline"
