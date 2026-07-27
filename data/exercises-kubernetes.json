@@ -263,7 +263,7 @@
     "order": 210,
     "entryFile": "/configmap.yaml",
     "initialFiles": {
-      "/configmap.yaml": "apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: app-config\n  # TODO: ajoutez data avec APP_ENV: production\ndata: {}\n"
+      "/configmap.yaml": "apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: app-config\n  # TODO: compléter la section data ci-dessous\ndata: {}\n"
     },
     "instructions": "## Objectif\nDans `configmap.yaml`, ajoutez **data** avec **APP_ENV: production**.",
     "validation": [

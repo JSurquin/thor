@@ -134,7 +134,10 @@
     "level": "debutant",
     "order": 105,
     "entryFile": "/Dockerfile",
-    "instructions": "## Objectif\nVérifiez que `Dockerfile` contient **RUN npm ci** (installation reproductible des dépendances).",
+    "initialFiles": {
+      "/Dockerfile": "# Image Node pour une app front\nFROM node:20-alpine\n\nWORKDIR /app\n\nCOPY package*.json ./\nRUN npm install\n\nCOPY . .\nRUN npm run build\n\nEXPOSE 3000\nCMD [\"npm\", \"start\"]\n"
+    },
+    "instructions": "## Objectif\nRemplacez **RUN npm install** par **RUN npm ci** (installation reproductible des dépendances).",
     "validation": [
       {
         "type": "contains",
@@ -521,7 +524,10 @@
     "level": "intermediaire",
     "order": 120,
     "entryFile": "/Dockerfile",
-    "instructions": "## Objectif\nAssurez-vous que **COPY package*.json** apparaît **avant** `COPY . .` (bonne pratique cache).",
+    "initialFiles": {
+      "/Dockerfile": "# Image Node pour une app front\nFROM node:20-alpine\n\nWORKDIR /app\n\nCOPY . .\nRUN npm ci --omit=dev\n\nRUN npm run build\n\nEXPOSE 3000\nCMD [\"npm\", \"start\"]\n"
+    },
+    "instructions": "## Objectif\nRéorganisez le Dockerfile : **COPY package*.json** doit apparaître **avant** `COPY . .` (bonne pratique cache).",
     "validation": [
       {
         "type": "matches",

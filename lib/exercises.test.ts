@@ -253,4 +253,40 @@ export default function Page() {
     };
     expect(isExerciseValid(validateExercise(ex, badFiles))).toBe(false);
   });
+
+  it("rejette le Dockerfile initial Docker/Kubernetes tant que l’élève n’a pas modifié", () => {
+    for (const id of ["docker-run-npm-ci", "docker-copy-package-first", "k8s-configmap"]) {
+      const ex = getExerciseById(id);
+      expect(ex, id).toBeDefined();
+      const initial = getExerciseInitialFiles(ex!);
+      expect(isExerciseValid(validateExercise(ex!, initial)), id).toBe(false);
+    }
+  });
+
+  it("valide une solution Docker npm ci", () => {
+    const ex = getExerciseById("docker-run-npm-ci")!;
+    const files = {
+      ...getExerciseInitialFiles(ex),
+      "/Dockerfile": getExerciseInitialFiles(ex)["/Dockerfile"].replace(
+        "RUN npm install",
+        "RUN npm ci"
+      ),
+    };
+    expect(isExerciseValid(validateExercise(ex, files))).toBe(true);
+  });
+
+  it("valide une solution Kubernetes ConfigMap", () => {
+    const ex = getExerciseById("k8s-configmap")!;
+    const files = {
+      ...getExerciseInitialFiles(ex),
+      "/configmap.yaml": `apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  APP_ENV: production
+`,
+    };
+    expect(isExerciseValid(validateExercise(ex, files))).toBe(true);
+  });
 });
