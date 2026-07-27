@@ -35,7 +35,9 @@ export type ExerciseTemplateId =
   | "vue"
   | "html"
   | "javascript"
-  | "bash";
+  | "bash"
+  | "docker"
+  | "kubernetes";
 
 /** Mode d'exécution : simulé (navigateur) ou remote (VM/conteneur cloud). */
 export type ExerciseRuntimeKind = "simulated" | "remote";

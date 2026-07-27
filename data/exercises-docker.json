@@ -1,0 +1,643 @@
+[
+  {
+    "id": "docker-from-alpine",
+    "title": "Docker : image de base Alpine",
+    "description": "Utiliser une image Alpine légère comme base.",
+    "level": "debutant",
+    "order": 100,
+    "entryFile": "/Dockerfile",
+    "instructions": "## Objectif\nDans `Dockerfile`, remplacez l'image de base par **nginx:alpine** (ligne `FROM`).\n\nAlpine est une distribution Linux minimale (~5 Mo), idéale pour des images de production légères.",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/Dockerfile",
+        "substring": "nginx:alpine",
+        "successMessage": "Image nginx:alpine utilisée."
+      }
+    ],
+    "hint": "Remplacez `FROM node:20-alpine` par `FROM nginx:alpine`.",
+    "solutionSummary": "FROM nginx:alpine",
+    "templateId": "docker",
+    "runtime": {
+      "kind": "remote",
+      "image": "docker-in-docker",
+      "capabilities": [
+        "docker"
+      ]
+    }
+  },
+  {
+    "id": "docker-expose-port",
+    "title": "Docker : exposer le port 8080",
+    "description": "Documenter le port d'écoute avec EXPOSE.",
+    "level": "debutant",
+    "order": 101,
+    "entryFile": "/Dockerfile",
+    "instructions": "## Objectif\nAjoutez la directive **EXPOSE 8080** dans `Dockerfile` (en plus ou à la place du port existant).\n\nEXPOSE informe Docker et les orchestrateurs du port que le conteneur écoute.",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/Dockerfile",
+        "substring": "EXPOSE 8080",
+        "successMessage": "EXPOSE 8080 présent."
+      }
+    ],
+    "hint": "Ajoutez une ligne `EXPOSE 8080` après WORKDIR ou COPY.",
+    "templateId": "docker",
+    "runtime": {
+      "kind": "remote",
+      "image": "docker-in-docker",
+      "capabilities": [
+        "docker"
+      ]
+    }
+  },
+  {
+    "id": "docker-workdir-custom",
+    "title": "Docker : WORKDIR personnalisé",
+    "description": "Définir le répertoire de travail /srv.",
+    "level": "debutant",
+    "order": 102,
+    "entryFile": "/Dockerfile",
+    "instructions": "## Objectif\nChangez **WORKDIR** pour qu'il pointe vers **/srv** au lieu de /app.",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/Dockerfile",
+        "substring": "WORKDIR /srv",
+        "successMessage": "WORKDIR /srv configuré."
+      }
+    ],
+    "templateId": "docker",
+    "runtime": {
+      "kind": "remote",
+      "image": "docker-in-docker",
+      "capabilities": [
+        "docker"
+      ]
+    }
+  },
+  {
+    "id": "docker-env-node-env",
+    "title": "Docker : variable ENV",
+    "description": "Déclarer NODE_ENV=production dans le Dockerfile.",
+    "level": "debutant",
+    "order": 103,
+    "entryFile": "/Dockerfile",
+    "instructions": "## Objectif\nAjoutez **ENV NODE_ENV=production** dans `Dockerfile`.",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/Dockerfile",
+        "substring": "ENV NODE_ENV=production",
+        "successMessage": "Variable NODE_ENV définie."
+      }
+    ],
+    "templateId": "docker",
+    "runtime": {
+      "kind": "remote",
+      "image": "docker-in-docker",
+      "capabilities": [
+        "docker"
+      ]
+    }
+  },
+  {
+    "id": "docker-cmd-node",
+    "title": "Docker : commande CMD",
+    "description": "Lancer l'app avec node index.js.",
+    "level": "debutant",
+    "order": 104,
+    "entryFile": "/Dockerfile",
+    "instructions": "## Objectif\nRemplacez la commande **CMD** par : `CMD [\"node\", \"index.js\"]`",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/Dockerfile",
+        "substring": "CMD [\"node\", \"index.js\"]",
+        "successMessage": "CMD node index.js configuré."
+      }
+    ],
+    "templateId": "docker",
+    "runtime": {
+      "kind": "remote",
+      "image": "docker-in-docker",
+      "capabilities": [
+        "docker"
+      ]
+    }
+  },
+  {
+    "id": "docker-run-npm-ci",
+    "title": "Docker : RUN npm ci",
+    "description": "Installer les dépendances avec npm ci.",
+    "level": "debutant",
+    "order": 105,
+    "entryFile": "/Dockerfile",
+    "instructions": "## Objectif\nVérifiez que `Dockerfile` contient **RUN npm ci** (installation reproductible des dépendances).",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/Dockerfile",
+        "substring": "RUN npm ci",
+        "successMessage": "RUN npm ci présent."
+      }
+    ],
+    "templateId": "docker",
+    "runtime": {
+      "kind": "remote",
+      "image": "docker-in-docker",
+      "capabilities": [
+        "docker"
+      ]
+    }
+  },
+  {
+    "id": "docker-user-nonroot",
+    "title": "Docker : utilisateur non-root",
+    "description": "Exécuter le conteneur avec USER node.",
+    "level": "intermediaire",
+    "order": 106,
+    "entryFile": "/Dockerfile",
+    "instructions": "## Objectif\nAjoutez **USER node** avant la commande CMD pour ne pas tourner en root (bonne pratique sécurité).",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/Dockerfile",
+        "substring": "USER node",
+        "successMessage": "USER node défini."
+      }
+    ],
+    "templateId": "docker",
+    "runtime": {
+      "kind": "remote",
+      "image": "docker-in-docker",
+      "capabilities": [
+        "docker"
+      ]
+    }
+  },
+  {
+    "id": "docker-healthcheck",
+    "title": "Docker : HEALTHCHECK",
+    "description": "Ajouter une sonde de santé HTTP.",
+    "level": "intermediaire",
+    "order": 107,
+    "entryFile": "/Dockerfile",
+    "instructions": "## Objectif\nAjoutez une directive **HEALTHCHECK** qui teste `http://localhost:3000/` (ex. avec curl ou wget).\n\nExemple : `HEALTHCHECK CMD curl -f http://localhost:3000/ || exit 1`",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/Dockerfile",
+        "substring": "HEALTHCHECK",
+        "successMessage": "HEALTHCHECK configuré."
+      }
+    ],
+    "templateId": "docker",
+    "runtime": {
+      "kind": "remote",
+      "image": "docker-in-docker",
+      "capabilities": [
+        "docker"
+      ]
+    }
+  },
+  {
+    "id": "docker-multistage",
+    "title": "Docker : build multi-étapes",
+    "description": "Séparer build et runtime avec AS builder.",
+    "level": "intermediaire",
+    "order": 108,
+    "entryFile": "/Dockerfile",
+    "instructions": "## Objectif\nTransformez le Dockerfile en **multi-stage** : la première étape doit s'appeler **AS builder**.\n\nExemple : `FROM node:20-alpine AS builder`",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/Dockerfile",
+        "substring": "AS builder",
+        "successMessage": "Stage builder présent."
+      }
+    ],
+    "templateId": "docker",
+    "runtime": {
+      "kind": "remote",
+      "image": "docker-in-docker",
+      "capabilities": [
+        "docker"
+      ]
+    }
+  },
+  {
+    "id": "docker-label-maintainer",
+    "title": "Docker : LABEL maintainer",
+    "description": "Documenter l'auteur de l'image.",
+    "level": "debutant",
+    "order": 109,
+    "entryFile": "/Dockerfile",
+    "instructions": "## Objectif\nAjoutez **LABEL maintainer=\"formation@example.com\"** dans `Dockerfile`.",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/Dockerfile",
+        "substring": "LABEL maintainer",
+        "successMessage": "LABEL maintainer ajouté."
+      }
+    ],
+    "templateId": "docker",
+    "runtime": {
+      "kind": "remote",
+      "image": "docker-in-docker",
+      "capabilities": [
+        "docker"
+      ]
+    }
+  },
+  {
+    "id": "docker-arg-version",
+    "title": "Docker : ARG de build",
+    "description": "Paramétrer la version Node avec ARG.",
+    "level": "intermediaire",
+    "order": 110,
+    "entryFile": "/Dockerfile",
+    "instructions": "## Objectif\nAjoutez **ARG NODE_VERSION=20** et utilisez-le dans FROM (ex. `node:${NODE_VERSION}-alpine`).",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/Dockerfile",
+        "substring": "ARG NODE_VERSION",
+        "successMessage": "ARG NODE_VERSION défini."
+      }
+    ],
+    "templateId": "docker",
+    "runtime": {
+      "kind": "remote",
+      "image": "docker-in-docker",
+      "capabilities": [
+        "docker"
+      ]
+    }
+  },
+  {
+    "id": "docker-entrypoint",
+    "title": "Docker : ENTRYPOINT",
+    "description": "Fixer le point d'entrée du conteneur.",
+    "level": "intermediaire",
+    "order": 111,
+    "entryFile": "/Dockerfile",
+    "instructions": "## Objectif\nAjoutez **ENTRYPOINT [\"docker-entrypoint.sh\"]** dans `Dockerfile`.",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/Dockerfile",
+        "substring": "ENTRYPOINT",
+        "successMessage": "ENTRYPOINT défini."
+      }
+    ],
+    "templateId": "docker",
+    "runtime": {
+      "kind": "remote",
+      "image": "docker-in-docker",
+      "capabilities": [
+        "docker"
+      ]
+    }
+  },
+  {
+    "id": "docker-compose-port-8080",
+    "title": "Docker Compose : mapper le port 8080",
+    "description": "Publier le port 8080 sur l'hôte.",
+    "level": "debutant",
+    "order": 112,
+    "entryFile": "/docker-compose.yml",
+    "instructions": "## Objectif\nDans `docker-compose.yml`, changez le mapping de ports du service app en **\"8080:8080\"**.",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/docker-compose.yml",
+        "substring": "\"8080:8080\"",
+        "successMessage": "Port 8080 mappé."
+      }
+    ],
+    "templateId": "docker",
+    "runtime": {
+      "kind": "remote",
+      "image": "docker-in-docker",
+      "capabilities": [
+        "docker"
+      ]
+    }
+  },
+  {
+    "id": "docker-compose-volume",
+    "title": "Docker Compose : volume nommé",
+    "description": "Monter un volume pour persister les données.",
+    "level": "intermediaire",
+    "order": 113,
+    "entryFile": "/docker-compose.yml",
+    "instructions": "## Objectif\nAjoutez un **volume** au service app (ex. `app-data:/app/data`) et déclarez le volume en bas du fichier.",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/docker-compose.yml",
+        "substring": "volumes:",
+        "successMessage": "Section volumes présente."
+      }
+    ],
+    "templateId": "docker",
+    "runtime": {
+      "kind": "remote",
+      "image": "docker-in-docker",
+      "capabilities": [
+        "docker"
+      ]
+    }
+  },
+  {
+    "id": "docker-compose-env-file",
+    "title": "Docker Compose : fichier .env",
+    "description": "Charger les variables depuis env_file.",
+    "level": "intermediaire",
+    "order": 114,
+    "entryFile": "/docker-compose.yml",
+    "instructions": "## Objectif\nAjoutez **env_file: .env** au service app dans `docker-compose.yml`.",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/docker-compose.yml",
+        "substring": "env_file",
+        "successMessage": "env_file configuré."
+      }
+    ],
+    "templateId": "docker",
+    "runtime": {
+      "kind": "remote",
+      "image": "docker-in-docker",
+      "capabilities": [
+        "docker"
+      ]
+    }
+  },
+  {
+    "id": "docker-compose-depends-on",
+    "title": "Docker Compose : depends_on",
+    "description": "Ordre de démarrage entre services.",
+    "level": "intermediaire",
+    "order": 115,
+    "entryFile": "/docker-compose.yml",
+    "instructions": "## Objectif\nAjoutez un service **db** (image postgres:16-alpine) et faites dépendre **app** de **db** avec **depends_on**.",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/docker-compose.yml",
+        "substring": "depends_on",
+        "successMessage": "depends_on configuré."
+      },
+      {
+        "type": "contains",
+        "file": "/docker-compose.yml",
+        "substring": "postgres",
+        "successMessage": "Service postgres ajouté."
+      }
+    ],
+    "templateId": "docker",
+    "runtime": {
+      "kind": "remote",
+      "image": "docker-in-docker",
+      "capabilities": [
+        "docker"
+      ]
+    }
+  },
+  {
+    "id": "docker-compose-network",
+    "title": "Docker Compose : réseau custom",
+    "description": "Isoler les services sur un réseau dédié.",
+    "level": "intermediaire",
+    "order": 116,
+    "entryFile": "/docker-compose.yml",
+    "instructions": "## Objectif\nCréez un réseau **frontend** et attachez-y le service app.",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/docker-compose.yml",
+        "substring": "networks:",
+        "successMessage": "Réseaux définis."
+      },
+      {
+        "type": "contains",
+        "file": "/docker-compose.yml",
+        "substring": "frontend",
+        "successMessage": "Réseau frontend présent."
+      }
+    ],
+    "templateId": "docker",
+    "runtime": {
+      "kind": "remote",
+      "image": "docker-in-docker",
+      "capabilities": [
+        "docker"
+      ]
+    }
+  },
+  {
+    "id": "docker-compose-restart",
+    "title": "Docker Compose : politique restart",
+    "description": "Redémarrer automatiquement le conteneur.",
+    "level": "debutant",
+    "order": 117,
+    "entryFile": "/docker-compose.yml",
+    "instructions": "## Objectif\nAjoutez **restart: unless-stopped** au service app.",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/docker-compose.yml",
+        "substring": "restart: unless-stopped",
+        "successMessage": "restart unless-stopped configuré."
+      }
+    ],
+    "templateId": "docker",
+    "runtime": {
+      "kind": "remote",
+      "image": "docker-in-docker",
+      "capabilities": [
+        "docker"
+      ]
+    }
+  },
+  {
+    "id": "docker-compose-redis",
+    "title": "Docker Compose : service Redis",
+    "description": "Ajouter un cache Redis au stack.",
+    "level": "intermediaire",
+    "order": 118,
+    "entryFile": "/docker-compose.yml",
+    "instructions": "## Objectif\nAjoutez un service **redis** (image redis:7-alpine) dans `docker-compose.yml`.",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/docker-compose.yml",
+        "substring": "redis",
+        "successMessage": "Service redis ajouté."
+      }
+    ],
+    "templateId": "docker",
+    "runtime": {
+      "kind": "remote",
+      "image": "docker-in-docker",
+      "capabilities": [
+        "docker"
+      ]
+    }
+  },
+  {
+    "id": "dockerignore-env",
+    "title": "Docker : .dockerignore",
+    "description": "Exclure les secrets du contexte de build.",
+    "level": "debutant",
+    "order": 119,
+    "entryFile": "/.dockerignore",
+    "instructions": "## Objectif\nAjoutez **.env** dans `.dockerignore` pour ne pas copier les secrets dans l'image.",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/.dockerignore",
+        "substring": ".env",
+        "successMessage": ".env exclu du build."
+      }
+    ],
+    "templateId": "docker",
+    "runtime": {
+      "kind": "remote",
+      "image": "docker-in-docker",
+      "capabilities": [
+        "docker"
+      ]
+    }
+  },
+  {
+    "id": "docker-copy-package-first",
+    "title": "Docker : COPY package.json en premier",
+    "description": "Optimiser le cache Docker layers.",
+    "level": "intermediaire",
+    "order": 120,
+    "entryFile": "/Dockerfile",
+    "instructions": "## Objectif\nAssurez-vous que **COPY package*.json** apparaît **avant** `COPY . .` (bonne pratique cache).",
+    "validation": [
+      {
+        "type": "matches",
+        "file": "/Dockerfile",
+        "pattern": "COPY package.*\\n.*COPY \\.",
+        "flags": "s",
+        "successMessage": "Ordre COPY optimisé pour le cache."
+      }
+    ],
+    "templateId": "docker",
+    "runtime": {
+      "kind": "remote",
+      "image": "docker-in-docker",
+      "capabilities": [
+        "docker"
+      ]
+    }
+  },
+  {
+    "id": "docker-stop-signal",
+    "title": "Docker : STOPSIGNAL",
+    "description": "Gérer l'arrêt gracieux du conteneur.",
+    "level": "avance",
+    "order": 121,
+    "entryFile": "/Dockerfile",
+    "instructions": "## Objectif\nAjoutez **STOPSIGNAL SIGTERM** dans `Dockerfile`.",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/Dockerfile",
+        "substring": "STOPSIGNAL SIGTERM",
+        "successMessage": "STOPSIGNAL configuré."
+      }
+    ],
+    "templateId": "docker",
+    "runtime": {
+      "kind": "remote",
+      "image": "docker-in-docker",
+      "capabilities": [
+        "docker"
+      ]
+    }
+  },
+  {
+    "id": "docker-compose-healthcheck",
+    "title": "Docker Compose : healthcheck",
+    "description": "Sonde de santé au niveau Compose.",
+    "level": "intermediaire",
+    "order": 122,
+    "entryFile": "/docker-compose.yml",
+    "instructions": "## Objectif\nAjoutez une section **healthcheck** au service app (test curl ou wget sur localhost).",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/docker-compose.yml",
+        "substring": "healthcheck:",
+        "successMessage": "healthcheck Compose présent."
+      }
+    ],
+    "templateId": "docker",
+    "runtime": {
+      "kind": "remote",
+      "image": "docker-in-docker",
+      "capabilities": [
+        "docker"
+      ]
+    }
+  },
+  {
+    "id": "docker-compose-profiles",
+    "title": "Docker Compose : profiles",
+    "description": "Activer des services à la demande.",
+    "level": "avance",
+    "order": 123,
+    "entryFile": "/docker-compose.yml",
+    "instructions": "## Objectif\nAjoutez **profiles: [\"debug\"]** à un service ou créez un service debug avec ce profile.",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/docker-compose.yml",
+        "substring": "profiles:",
+        "successMessage": "profiles configuré."
+      }
+    ],
+    "templateId": "docker",
+    "runtime": {
+      "kind": "remote",
+      "image": "docker-in-docker",
+      "capabilities": [
+        "docker"
+      ]
+    }
+  },
+  {
+    "id": "docker-compose-build-args",
+    "title": "Docker Compose : build args",
+    "description": "Passer des ARG au build Docker.",
+    "level": "avance",
+    "order": 124,
+    "entryFile": "/docker-compose.yml",
+    "instructions": "## Objectif\nSous **build:** du service app, ajoutez **args:** avec **NODE_VERSION: \"20\"**.",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/docker-compose.yml",
+        "substring": "args:",
+        "successMessage": "build args présents."
+      }
+    ],
+    "templateId": "docker",
+    "runtime": {
+      "kind": "remote",
+      "image": "docker-in-docker",
+      "capabilities": [
+        "docker"
+      ]
+    }
+  }
+]

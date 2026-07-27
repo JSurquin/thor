@@ -7,7 +7,9 @@ import type {
 } from "./types";
 import type { ValidationMessages } from "./i18n";
 import { getValidationMessages, DEFAULT_LOCALE, type Locale } from "./i18n";
-import data from "@/data/exercises.json";
+import baseData from "@/data/exercises.json";
+import dockerData from "@/data/exercises-docker.json";
+import kubernetesData from "@/data/exercises-kubernetes.json";
 import { TEMPLATES, type TemplateId } from "./templates";
 import { BASH_TERMINAL_SHELL_JS } from "./bash-exercise-assets";
 import {
@@ -15,6 +17,8 @@ import {
   exerciseUsesTerminalPreview,
   type ResolvedExerciseRuntime,
 } from "./lab-runtime";
+
+const data = [...baseData, ...dockerData, ...kubernetesData];
 
 export type { Exercise, ExerciseValidation };
 export type { ResolvedExerciseRuntime };

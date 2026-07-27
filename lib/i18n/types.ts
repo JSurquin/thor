@@ -51,6 +51,8 @@ export interface Messages {
     templateHtml: string;
     templateJavascript: string;
     templateBash: string;
+    templateDocker: string;
+    templateKubernetes: string;
   };
   exercise: {
     backToList: string;

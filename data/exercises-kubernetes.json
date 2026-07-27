@@ -1,0 +1,675 @@
+[
+  {
+    "id": "k8s-replicas-3",
+    "title": "Kubernetes : 3 réplicas",
+    "description": "Scaler le Deployment à 3 pods.",
+    "level": "debutant",
+    "order": 200,
+    "entryFile": "/deployment.yaml",
+    "instructions": "## Objectif\nDans `deployment.yaml`, changez **replicas** à **3**.",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/deployment.yaml",
+        "substring": "replicas: 3",
+        "successMessage": "3 réplicas configurés."
+      }
+    ],
+    "templateId": "kubernetes",
+    "runtime": {
+      "kind": "remote",
+      "image": "kind-node",
+      "capabilities": [
+        "kubernetes"
+      ]
+    }
+  },
+  {
+    "id": "k8s-image-nginx",
+    "title": "Kubernetes : image nginx",
+    "description": "Déployer nginx:1.25 au lieu de app:latest.",
+    "level": "debutant",
+    "order": 201,
+    "entryFile": "/deployment.yaml",
+    "instructions": "## Objectif\nRemplacez l'image du conteneur par **nginx:1.25**.",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/deployment.yaml",
+        "substring": "nginx:1.25",
+        "successMessage": "Image nginx:1.25 utilisée."
+      }
+    ],
+    "templateId": "kubernetes",
+    "runtime": {
+      "kind": "remote",
+      "image": "kind-node",
+      "capabilities": [
+        "kubernetes"
+      ]
+    }
+  },
+  {
+    "id": "k8s-container-port-80",
+    "title": "Kubernetes : containerPort 80",
+    "description": "Exposer le port 80 du conteneur.",
+    "level": "debutant",
+    "order": 202,
+    "entryFile": "/deployment.yaml",
+    "instructions": "## Objectif\nChangez **containerPort** à **80**.",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/deployment.yaml",
+        "substring": "containerPort: 80",
+        "successMessage": "Port 80 exposé."
+      }
+    ],
+    "templateId": "kubernetes",
+    "runtime": {
+      "kind": "remote",
+      "image": "kind-node",
+      "capabilities": [
+        "kubernetes"
+      ]
+    }
+  },
+  {
+    "id": "k8s-label-version",
+    "title": "Kubernetes : label version",
+    "description": "Ajouter un label version au pod template.",
+    "level": "debutant",
+    "order": 203,
+    "entryFile": "/deployment.yaml",
+    "instructions": "## Objectif\nAjoutez le label **version: \"1.0\"** dans metadata.labels du pod template.",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/deployment.yaml",
+        "substring": "version:",
+        "successMessage": "Label version ajouté."
+      }
+    ],
+    "templateId": "kubernetes",
+    "runtime": {
+      "kind": "remote",
+      "image": "kind-node",
+      "capabilities": [
+        "kubernetes"
+      ]
+    }
+  },
+  {
+    "id": "k8s-resources-limits",
+    "title": "Kubernetes : limits CPU/mémoire",
+    "description": "Définir des resource limits.",
+    "level": "intermediaire",
+    "order": 204,
+    "entryFile": "/deployment.yaml",
+    "instructions": "## Objectif\nAjoutez **resources** avec **limits** (cpu et memory) au conteneur.",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/deployment.yaml",
+        "substring": "limits:",
+        "successMessage": "limits définis."
+      },
+      {
+        "type": "contains",
+        "file": "/deployment.yaml",
+        "substring": "memory:",
+        "successMessage": "Limite mémoire présente."
+      }
+    ],
+    "templateId": "kubernetes",
+    "runtime": {
+      "kind": "remote",
+      "image": "kind-node",
+      "capabilities": [
+        "kubernetes"
+      ]
+    }
+  },
+  {
+    "id": "k8s-liveness-probe",
+    "title": "Kubernetes : livenessProbe",
+    "description": "Détecter les conteneurs bloqués.",
+    "level": "intermediaire",
+    "order": 205,
+    "entryFile": "/deployment.yaml",
+    "instructions": "## Objectif\nAjoutez une **livenessProbe** HTTP sur le port du conteneur (path `/`).",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/deployment.yaml",
+        "substring": "livenessProbe:",
+        "successMessage": "livenessProbe configurée."
+      }
+    ],
+    "templateId": "kubernetes",
+    "runtime": {
+      "kind": "remote",
+      "image": "kind-node",
+      "capabilities": [
+        "kubernetes"
+      ]
+    }
+  },
+  {
+    "id": "k8s-readiness-probe",
+    "title": "Kubernetes : readinessProbe",
+    "description": "Contrôler le trafic entrant.",
+    "level": "intermediaire",
+    "order": 206,
+    "entryFile": "/deployment.yaml",
+    "instructions": "## Objectif\nAjoutez une **readinessProbe** HTTP.",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/deployment.yaml",
+        "substring": "readinessProbe:",
+        "successMessage": "readinessProbe configurée."
+      }
+    ],
+    "templateId": "kubernetes",
+    "runtime": {
+      "kind": "remote",
+      "image": "kind-node",
+      "capabilities": [
+        "kubernetes"
+      ]
+    }
+  },
+  {
+    "id": "k8s-service-clusterip",
+    "title": "Kubernetes : Service ClusterIP",
+    "description": "Service interne au cluster.",
+    "level": "debutant",
+    "order": 207,
+    "entryFile": "/service.yaml",
+    "instructions": "## Objectif\nChangez le type du Service en **ClusterIP** (au lieu de LoadBalancer).",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/service.yaml",
+        "substring": "type: ClusterIP",
+        "successMessage": "Type ClusterIP."
+      }
+    ],
+    "templateId": "kubernetes",
+    "runtime": {
+      "kind": "remote",
+      "image": "kind-node",
+      "capabilities": [
+        "kubernetes"
+      ]
+    }
+  },
+  {
+    "id": "k8s-service-port-8080",
+    "title": "Kubernetes : port Service 8080",
+    "description": "Exposer le port 8080.",
+    "level": "debutant",
+    "order": 208,
+    "entryFile": "/service.yaml",
+    "instructions": "## Objectif\nChangez **port** à **8080** dans `service.yaml`.",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/service.yaml",
+        "substring": "port: 8080",
+        "successMessage": "Port 8080 configuré."
+      }
+    ],
+    "templateId": "kubernetes",
+    "runtime": {
+      "kind": "remote",
+      "image": "kind-node",
+      "capabilities": [
+        "kubernetes"
+      ]
+    }
+  },
+  {
+    "id": "k8s-namespace-dev",
+    "title": "Kubernetes : namespace dev",
+    "description": "Déployer dans le namespace dev.",
+    "level": "debutant",
+    "order": 209,
+    "entryFile": "/deployment.yaml",
+    "instructions": "## Objectif\nAjoutez **namespace: dev** dans metadata du Deployment.",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/deployment.yaml",
+        "substring": "namespace: dev",
+        "successMessage": "Namespace dev défini."
+      }
+    ],
+    "templateId": "kubernetes",
+    "runtime": {
+      "kind": "remote",
+      "image": "kind-node",
+      "capabilities": [
+        "kubernetes"
+      ]
+    }
+  },
+  {
+    "id": "k8s-configmap",
+    "title": "Kubernetes : ConfigMap",
+    "description": "Créer un ConfigMap pour la config app.",
+    "level": "intermediaire",
+    "order": 210,
+    "entryFile": "/configmap.yaml",
+    "initialFiles": {
+      "/configmap.yaml": "apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: app-config\n  # TODO: ajoutez data avec APP_ENV: production\ndata: {}\n"
+    },
+    "instructions": "## Objectif\nDans `configmap.yaml`, ajoutez **data** avec **APP_ENV: production**.",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/configmap.yaml",
+        "substring": "APP_ENV",
+        "successMessage": "Clé APP_ENV dans ConfigMap."
+      },
+      {
+        "type": "contains",
+        "file": "/configmap.yaml",
+        "substring": "production",
+        "successMessage": "Valeur production."
+      }
+    ],
+    "templateId": "kubernetes",
+    "runtime": {
+      "kind": "remote",
+      "image": "kind-node",
+      "capabilities": [
+        "kubernetes"
+      ]
+    }
+  },
+  {
+    "id": "k8s-secret-env",
+    "title": "Kubernetes : secretKeyRef",
+    "description": "Injecter un secret en variable d'env.",
+    "level": "intermediaire",
+    "order": 211,
+    "entryFile": "/deployment.yaml",
+    "instructions": "## Objectif\nAjoutez une variable d'environnement **DB_PASSWORD** via **secretKeyRef** (secret nommé app-secrets, clé password).",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/deployment.yaml",
+        "substring": "secretKeyRef",
+        "successMessage": "secretKeyRef utilisé."
+      }
+    ],
+    "templateId": "kubernetes",
+    "runtime": {
+      "kind": "remote",
+      "image": "kind-node",
+      "capabilities": [
+        "kubernetes"
+      ]
+    }
+  },
+  {
+    "id": "k8s-env-configmap",
+    "title": "Kubernetes : configMapKeyRef",
+    "description": "Lire une clé depuis un ConfigMap.",
+    "level": "intermediaire",
+    "order": 212,
+    "entryFile": "/deployment.yaml",
+    "instructions": "## Objectif\nInjectez **APP_ENV** via **configMapKeyRef** (ConfigMap app-config, clé APP_ENV).",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/deployment.yaml",
+        "substring": "configMapKeyRef",
+        "successMessage": "configMapKeyRef utilisé."
+      }
+    ],
+    "templateId": "kubernetes",
+    "runtime": {
+      "kind": "remote",
+      "image": "kind-node",
+      "capabilities": [
+        "kubernetes"
+      ]
+    }
+  },
+  {
+    "id": "k8s-ingress-host",
+    "title": "Kubernetes : Ingress",
+    "description": "Exposer l'app via un nom de domaine.",
+    "level": "intermediaire",
+    "order": 213,
+    "entryFile": "/ingress.yaml",
+    "initialFiles": {
+      "/ingress.yaml": "apiVersion: networking.k8s.io/v1\nkind: Ingress\nmetadata:\n  name: app-ingress\nspec:\n  rules:\n    - host: example.com\n      http:\n        paths:\n          - path: /\n            pathType: Prefix\n            backend:\n              service:\n                name: app\n                port:\n                  number: 80\n"
+    },
+    "instructions": "## Objectif\nChangez le **host** en **app.example.com** dans `ingress.yaml`.",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/ingress.yaml",
+        "substring": "app.example.com",
+        "successMessage": "Host app.example.com."
+      }
+    ],
+    "templateId": "kubernetes",
+    "runtime": {
+      "kind": "remote",
+      "image": "kind-node",
+      "capabilities": [
+        "kubernetes"
+      ]
+    }
+  },
+  {
+    "id": "k8s-hpa",
+    "title": "Kubernetes : HorizontalPodAutoscaler",
+    "description": "Auto-scaling sur CPU.",
+    "level": "avance",
+    "order": 214,
+    "entryFile": "/hpa.yaml",
+    "initialFiles": {
+      "/hpa.yaml": "apiVersion: autoscaling/v2\nkind: HorizontalPodAutoscaler\nmetadata:\n  name: app-hpa\nspec:\n  scaleTargetRef:\n    apiVersion: apps/v1\n    kind: Deployment\n    name: app\n  minReplicas: 1\n  maxReplicas: 5\n  metrics:\n    - type: Resource\n      resource:\n        name: cpu\n        target:\n          type: Utilization\n          averageUtilization: 70\n"
+    },
+    "instructions": "## Objectif\nChangez **minReplicas** à **2** dans `hpa.yaml`.",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/hpa.yaml",
+        "substring": "minReplicas: 2",
+        "successMessage": "minReplicas = 2."
+      }
+    ],
+    "templateId": "kubernetes",
+    "runtime": {
+      "kind": "remote",
+      "image": "kind-node",
+      "capabilities": [
+        "kubernetes"
+      ]
+    }
+  },
+  {
+    "id": "k8s-pvc",
+    "title": "Kubernetes : PersistentVolumeClaim",
+    "description": "Demander du stockage persistant.",
+    "level": "intermediaire",
+    "order": 215,
+    "entryFile": "/pvc.yaml",
+    "initialFiles": {
+      "/pvc.yaml": "apiVersion: v1\nkind: PersistentVolumeClaim\nmetadata:\n  name: app-data\nspec:\n  accessModes:\n    - ReadWriteOnce\n  resources:\n    requests:\n      storage: 1Gi\n"
+    },
+    "instructions": "## Objectif\nAugmentez **storage** à **5Gi** dans `pvc.yaml`.",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/pvc.yaml",
+        "substring": "storage: 5Gi",
+        "successMessage": "5Gi de stockage demandé."
+      }
+    ],
+    "templateId": "kubernetes",
+    "runtime": {
+      "kind": "remote",
+      "image": "kind-node",
+      "capabilities": [
+        "kubernetes"
+      ]
+    }
+  },
+  {
+    "id": "k8s-strategy-rolling",
+    "title": "Kubernetes : RollingUpdate",
+    "description": "Stratégie de déploiement sans coupure.",
+    "level": "intermediaire",
+    "order": 216,
+    "entryFile": "/deployment.yaml",
+    "instructions": "## Objectif\nAjoutez **strategy: RollingUpdate** avec **maxUnavailable: 0** sous spec du Deployment.",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/deployment.yaml",
+        "substring": "RollingUpdate",
+        "successMessage": "Stratégie RollingUpdate."
+      }
+    ],
+    "templateId": "kubernetes",
+    "runtime": {
+      "kind": "remote",
+      "image": "kind-node",
+      "capabilities": [
+        "kubernetes"
+      ]
+    }
+  },
+  {
+    "id": "k8s-node-selector",
+    "title": "Kubernetes : nodeSelector",
+    "description": "Planifier sur des nœuds spécifiques.",
+    "level": "avance",
+    "order": 217,
+    "entryFile": "/deployment.yaml",
+    "instructions": "## Objectif\nAjoutez **nodeSelector** avec **disktype: ssd** dans pod spec.",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/deployment.yaml",
+        "substring": "nodeSelector:",
+        "successMessage": "nodeSelector défini."
+      },
+      {
+        "type": "contains",
+        "file": "/deployment.yaml",
+        "substring": "disktype: ssd",
+        "successMessage": "Label disktype ssd."
+      }
+    ],
+    "templateId": "kubernetes",
+    "runtime": {
+      "kind": "remote",
+      "image": "kind-node",
+      "capabilities": [
+        "kubernetes"
+      ]
+    }
+  },
+  {
+    "id": "k8s-tolerations",
+    "title": "Kubernetes : tolerations",
+    "description": "Tolérer un taint de nœud.",
+    "level": "avance",
+    "order": 218,
+    "entryFile": "/deployment.yaml",
+    "instructions": "## Objectif\nAjoutez **tolerations** avec **key: dedicated** et **operator: Equal**.",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/deployment.yaml",
+        "substring": "tolerations:",
+        "successMessage": "tolerations présentes."
+      }
+    ],
+    "templateId": "kubernetes",
+    "runtime": {
+      "kind": "remote",
+      "image": "kind-node",
+      "capabilities": [
+        "kubernetes"
+      ]
+    }
+  },
+  {
+    "id": "k8s-service-nodeport",
+    "title": "Kubernetes : Service NodePort",
+    "description": "Exposer le service sur chaque nœud.",
+    "level": "intermediaire",
+    "order": 219,
+    "entryFile": "/service.yaml",
+    "instructions": "## Objectif\nChangez le type du Service en **NodePort** et ajoutez **nodePort: 30080**.",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/service.yaml",
+        "substring": "type: NodePort",
+        "successMessage": "Type NodePort."
+      },
+      {
+        "type": "contains",
+        "file": "/service.yaml",
+        "substring": "nodePort: 30080",
+        "successMessage": "nodePort 30080."
+      }
+    ],
+    "templateId": "kubernetes",
+    "runtime": {
+      "kind": "remote",
+      "image": "kind-node",
+      "capabilities": [
+        "kubernetes"
+      ]
+    }
+  },
+  {
+    "id": "k8s-requests-resources",
+    "title": "Kubernetes : requests CPU",
+    "description": "Réserver des ressources au conteneur.",
+    "level": "intermediaire",
+    "order": 220,
+    "entryFile": "/deployment.yaml",
+    "instructions": "## Objectif\nAjoutez **resources.requests** avec **cpu: 100m** et **memory: 128Mi**.",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/deployment.yaml",
+        "substring": "requests:",
+        "successMessage": "requests définis."
+      },
+      {
+        "type": "contains",
+        "file": "/deployment.yaml",
+        "substring": "cpu: 100m",
+        "successMessage": "CPU request 100m."
+      }
+    ],
+    "templateId": "kubernetes",
+    "runtime": {
+      "kind": "remote",
+      "image": "kind-node",
+      "capabilities": [
+        "kubernetes"
+      ]
+    }
+  },
+  {
+    "id": "k8s-image-pull-policy",
+    "title": "Kubernetes : imagePullPolicy",
+    "description": "Contrôler le pull d'image.",
+    "level": "debutant",
+    "order": 221,
+    "entryFile": "/deployment.yaml",
+    "instructions": "## Objectif\nAjoutez **imagePullPolicy: IfNotPresent** au conteneur.",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/deployment.yaml",
+        "substring": "imagePullPolicy: IfNotPresent",
+        "successMessage": "imagePullPolicy configuré."
+      }
+    ],
+    "templateId": "kubernetes",
+    "runtime": {
+      "kind": "remote",
+      "image": "kind-node",
+      "capabilities": [
+        "kubernetes"
+      ]
+    }
+  },
+  {
+    "id": "k8s-service-account",
+    "title": "Kubernetes : serviceAccountName",
+    "description": "Associer un compte de service au pod.",
+    "level": "avance",
+    "order": 222,
+    "entryFile": "/deployment.yaml",
+    "instructions": "## Objectif\nAjoutez **serviceAccountName: app-sa** dans pod spec.",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/deployment.yaml",
+        "substring": "serviceAccountName: app-sa",
+        "successMessage": "serviceAccountName défini."
+      }
+    ],
+    "templateId": "kubernetes",
+    "runtime": {
+      "kind": "remote",
+      "image": "kind-node",
+      "capabilities": [
+        "kubernetes"
+      ]
+    }
+  },
+  {
+    "id": "k8s-affinity",
+    "title": "Kubernetes : podAntiAffinity",
+    "description": "Répartir les pods sur plusieurs nœuds.",
+    "level": "avance",
+    "order": 223,
+    "entryFile": "/deployment.yaml",
+    "instructions": "## Objectif\nAjoutez **affinity** avec **podAntiAffinity** pour éviter deux pods app sur le même nœud.",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/deployment.yaml",
+        "substring": "podAntiAffinity",
+        "successMessage": "podAntiAffinity configuré."
+      }
+    ],
+    "templateId": "kubernetes",
+    "runtime": {
+      "kind": "remote",
+      "image": "kind-node",
+      "capabilities": [
+        "kubernetes"
+      ]
+    }
+  },
+  {
+    "id": "k8s-init-container",
+    "title": "Kubernetes : initContainer",
+    "description": "Exécuter une tâche avant le conteneur principal.",
+    "level": "avance",
+    "order": 224,
+    "entryFile": "/deployment.yaml",
+    "instructions": "## Objectif\nAjoutez un **initContainers** avec une image **busybox** qui exécute echo \"init done\".",
+    "validation": [
+      {
+        "type": "contains",
+        "file": "/deployment.yaml",
+        "substring": "initContainers:",
+        "successMessage": "initContainers présent."
+      },
+      {
+        "type": "contains",
+        "file": "/deployment.yaml",
+        "substring": "busybox",
+        "successMessage": "Image busybox utilisée."
+      }
+    ],
+    "templateId": "kubernetes",
+    "runtime": {
+      "kind": "remote",
+      "image": "kind-node",
+      "capabilities": [
+        "kubernetes"
+      ]
+    }
+  }
+]

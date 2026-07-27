@@ -73,6 +73,8 @@ export function ExercisesListClient({ exercises }: ExercisesListClientProps) {
     html: t.templateHtml,
     javascript: t.templateJavascript,
     bash: t.templateBash,
+    docker: t.templateDocker,
+    kubernetes: t.templateKubernetes,
   };
 
   const sortLabel: Record<ExerciseSortMode, string> = {

@@ -44,6 +44,8 @@ export const pl: Messages = {
     templateHtml: "HTML",
     templateJavascript: "JavaScript",
     templateBash: "Bash",
+    templateDocker: "Docker",
+    templateKubernetes: "Kubernetes",
   },
   exercise: {
     backToList: "Powrót do ćwiczeń",
