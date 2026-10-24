@@ -18,6 +18,9 @@ import {
   FolderTreeIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { LocaleSwitcher } from "@/components/locale-switcher";
+import { useLocale } from "@/components/locale-provider";
 import {
   Select,
   SelectContent,
@@ -68,31 +71,28 @@ import {
 import type { editor } from "monaco-editor";
 import { toast } from "sonner";
 
-const MonacoEditor = dynamic(
-  () => import("@monaco-editor/react").then((mod) => mod.default),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex items-center justify-center h-full bg-muted/30 text-muted-foreground">
-        Chargement de l’éditeur…
-      </div>
-    ),
-  }
-);
+const MonacoEditor = dynamic(() => import("@/components/code-editor"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center h-full bg-muted/30 text-muted-foreground">
+      Chargement de l’éditeur…
+    </div>
+  ),
+});
 
 const SandpackRoot = dynamic(
   () =>
     import("@codesandbox/sandpack-react").then((mod) => ({
       default: mod.SandpackProvider,
     })),
-  { ssr: false }
+  { ssr: false },
 );
 const SandpackPreview = dynamic(
   () =>
     import("@codesandbox/sandpack-react").then((mod) => ({
       default: mod.SandpackPreview,
     })),
-  { ssr: false }
+  { ssr: false },
 );
 
 type PlaygroundPanel = "editor" | "preview";
@@ -108,7 +108,12 @@ type PlaygroundView =
   | { phase: "prompt"; draft: PlaygroundPersistedV1 }
   | { phase: "run"; hydrate: PlaygroundHydrate | null };
 
-function PlaygroundWorkspace({ hydrate }: { hydrate: PlaygroundHydrate | null }) {
+function PlaygroundWorkspace({
+  hydrate,
+}: {
+  hydrate: PlaygroundHydrate | null;
+}) {
+  const { messages } = useLocale();
   const { resolvedTheme } = useTheme();
   const [initialTemplate] = useState<TemplateId>("react");
   const [mobilePanel, setMobilePanel] = useState<PlaygroundPanel>("editor");
@@ -177,7 +182,7 @@ function PlaygroundWorkspace({ hydrate }: { hydrate: PlaygroundHydrate | null })
       if (!ok) {
         toast.message(
           "Brouillon non sauvegardé (trop volumineux pour le stockage local)",
-          { duration: 4_000 }
+          { duration: 4_000 },
         );
       }
     }, 650);
@@ -185,7 +190,11 @@ function PlaygroundWorkspace({ hydrate }: { hydrate: PlaygroundHydrate | null })
   }, [templateId, files, activeFile]);
 
   const copyShareLink = useCallback(async () => {
-    const token = await buildPlaygroundShareToken(templateId, files, activeFile);
+    const token = await buildPlaygroundShareToken(
+      templateId,
+      files,
+      activeFile,
+    );
     if (!token) {
       toast.error("État trop volumineux pour un lien (réduisez les fichiers)");
       return;
@@ -225,14 +234,11 @@ function PlaygroundWorkspace({ hydrate }: { hydrate: PlaygroundHydrate | null })
         toast.error("Import ZIP impossible");
       }
     },
-    [mergeImportedFiles]
+    [mergeImportedFiles],
   );
 
   const sandpackTemplate = getSandpackTemplate(templateId);
-  const sandpackFiles = useMemo(
-    () => filesToSandpackFormat(files),
-    [files]
-  );
+  const sandpackFiles = useMemo(() => filesToSandpackFormat(files), [files]);
   const hasSandpackPreview = templateSupportsSandpackPreview(templateId);
   const hasHtmlPreview = templateId === "html";
 
@@ -292,13 +298,17 @@ function PlaygroundWorkspace({ hydrate }: { hydrate: PlaygroundHydrate | null })
     template.name,
   ]);
 
-  const mobileTabs: { id: PlaygroundPanel; label: string; icon: React.ReactNode }[] = [
+  const mobileTabs: {
+    id: PlaygroundPanel;
+    label: string;
+    icon: React.ReactNode;
+  }[] = [
     { id: "editor", label: "Code", icon: <FileCodeIcon className="size-4" /> },
     { id: "preview", label: "Aperçu", icon: <LayoutIcon className="size-4" /> },
   ];
 
   return (
-    <div className="flex h-dvh min-h-0 flex-col overflow-hidden bg-background">
+    <div className="workspace-shell flex h-dvh min-h-0 flex-col overflow-hidden bg-background">
       <input
         ref={zipInputRef}
         type="file"
@@ -306,20 +316,37 @@ function PlaygroundWorkspace({ hydrate }: { hydrate: PlaygroundHydrate | null })
         className="hidden"
         onChange={onZipInputChange}
       />
-      <header className="border-b border-border/40 bg-background/95 backdrop-blur sticky top-0 z-50 shrink-0 safe-area-inset-top">
+      <header className="workspace-toolbar border-b border-border/40 bg-background/95 backdrop-blur sticky top-0 z-50 shrink-0 safe-area-inset-top">
         <div className="mx-auto max-w-[1920px] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 px-3 sm:px-4 py-2 sm:py-3 min-w-0">
-          <Link
-            href="/"
-            className="flex items-center gap-2 text-foreground hover:opacity-90 min-w-0 shrink-0"
-          >
-            <div className="size-9 rounded-lg bg-primary/20 flex items-center justify-center ring-1 ring-primary/30 shrink-0">
-              <Code2Icon className="size-5 text-primary" />
+          <div className="flex min-w-0 items-center gap-4">
+            <Link href="/" className="brand">
+              <span className="brand-mark">
+                <Code2Icon className="size-5" />
+              </span>
+              <span>
+                lab
+                <span className="font-normal text-muted-foreground">
+                  .andromed
+                </span>
+                <span className="brand-dot" />
+              </span>
+            </Link>
+            <span className="hidden h-6 border-l border-border sm:block" />
+            <div className="workspace-title hidden sm:flex">
+              <small>{messages.studio.playground}</small>
+              <span className="text-xs font-semibold">{template.name}</span>
             </div>
-            <span className="font-semibold tracking-tight truncate">lab.andromed</span>
-            <span className="text-muted-foreground text-sm hidden sm:inline shrink-0">— Playground</span>
-          </Link>
+            <Link
+              href="/exercices"
+              className="ml-auto text-xs font-medium text-muted-foreground hover:text-primary"
+            >
+              {messages.studio.exercises}
+            </Link>
+          </div>
 
           <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 overflow-x-auto flex-nowrap sm:flex-wrap sm:overflow-visible min-h-[44px] -mx-3 px-3 sm:mx-0 sm:px-0 pb-0.5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden [&>*]:shrink-0">
+            <ThemeToggle />
+            <LocaleSwitcher className="h-9 min-h-9 w-[115px]" />
             <Select
               value={templateId}
               onValueChange={(v) => setTemplate(v as TemplateId)}
@@ -437,7 +464,10 @@ function PlaygroundWorkspace({ hydrate }: { hydrate: PlaygroundHydrate | null })
               <FolderTreeIcon className="size-4" />
               Fichiers
             </Button>
-            <span className="text-xs text-muted-foreground truncate flex-1 min-w-0" title={activeFile}>
+            <span
+              className="text-xs text-muted-foreground truncate flex-1 min-w-0"
+              title={activeFile}
+            >
               {activeFile.replace(/^\//, "")}
             </span>
           </div>
@@ -457,33 +487,49 @@ function PlaygroundWorkspace({ hydrate }: { hydrate: PlaygroundHydrate | null })
               ref={editorContainerRef}
               className="relative flex-1 min-w-0 min-h-[240px] flex flex-col overflow-hidden"
             >
-            {shouldRenderEditor ? (
-            <MonacoEditor
-              height={editorHeight}
-              language={getLanguage(activeFile)}
-              value={files[activeFile] ?? ""}
-              onChange={(value) => updateFile(activeFile, value ?? "")}
-              onMount={(instance) => {
-                monacoRef.current = instance;
-                window.requestAnimationFrame(() => instance.layout());
-              }}
-              theme={isDark ? "vs-dark" : "vs"}
-              options={{
-                readOnly: false,
-                minimap: { enabled: false },
-                fontSize: 14,
-                padding: { top: 16 },
-                scrollBeyondLastLine: false,
-                lineNumbers: "on",
-                wordWrap: "on",
-                automaticLayout: true,
-              }}
-            />
-            ) : (
-              <div className="flex items-center justify-center h-full bg-muted/30 text-muted-foreground text-sm">
-                Chargement de l’éditeur…
+              <div className="hidden min-h-11 items-center justify-between gap-3 border-b border-border bg-card px-4 text-xs lg:flex">
+                <span className="flex min-w-0 items-center gap-2">
+                  <FileCodeIcon className="size-3.5 shrink-0 text-primary" />
+                  <span className="truncate">
+                    {activeFile.replace(/^\//, "")}
+                  </span>
+                </span>
+                <span className="workspace-status">
+                  <span className="status-dot" />
+                  {getLanguage(activeFile)}
+                </span>
               </div>
-            )}
+              {shouldRenderEditor ? (
+                <MonacoEditor
+                  height={
+                    isLargeScreen
+                      ? Math.max(100, editorHeight - 44)
+                      : editorHeight
+                  }
+                  language={getLanguage(activeFile)}
+                  value={files[activeFile] ?? ""}
+                  onChange={(value) => updateFile(activeFile, value ?? "")}
+                  onMount={(instance) => {
+                    monacoRef.current = instance;
+                    window.requestAnimationFrame(() => instance.layout());
+                  }}
+                  theme={isDark ? "vs-dark" : "vs"}
+                  options={{
+                    readOnly: false,
+                    minimap: { enabled: false },
+                    fontSize: 14,
+                    padding: { top: 16 },
+                    scrollBeyondLastLine: false,
+                    lineNumbers: "on",
+                    wordWrap: "on",
+                    automaticLayout: true,
+                  }}
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full bg-muted/30 text-muted-foreground text-sm">
+                  Chargement de l’éditeur…
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -495,7 +541,9 @@ function PlaygroundWorkspace({ hydrate }: { hydrate: PlaygroundHydrate | null })
         >
           <div className="px-3 py-2 border-b border-border/40 flex items-center gap-2 shrink-0 min-h-[44px]">
             <LayoutIcon className="size-4 text-muted-foreground" />
-            <span className="text-sm font-medium text-muted-foreground">Aperçu</span>
+            <span className="text-sm font-medium text-muted-foreground">
+              Aperçu
+            </span>
           </div>
           <div className="flex-1 min-h-[280px] sm:min-h-[320px] overflow-auto p-3 sm:p-4">
             {previewContent}
@@ -576,7 +624,9 @@ export default function PlaygroundPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-3 bg-background">
         <Spinner className="size-10 text-primary" />
-        <p className="text-sm text-muted-foreground">Chargement du playground…</p>
+        <p className="text-sm text-muted-foreground">
+          Chargement du playground…
+        </p>
       </div>
     );
   }

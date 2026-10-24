@@ -2,6 +2,60 @@ import type { Messages } from "../types";
 
 export const de: Messages = {
   locale: "de",
+  studio: {
+    home: "Startseite",
+    exercises: "Übungen",
+    playground: "Playground",
+    eyebrow: "Hier lernen Sie durch Ausprobieren",
+    homeTitle: "Ein Playground.",
+    homeAccent: "Viele Wege zum Lernen.",
+    homeDescription:
+      "Von der ersten React-Komponente bis zum Kubernetes-Deployment: Wählen Sie ein Thema und lernen Sie in Ihrem Tempo.",
+    explore: "Übungen entdecken",
+    openPlayground: "Playground öffnen",
+    topicsTitle: "Für jede Idee das passende Thema.",
+    topicsDescription:
+      "Von Grundlagen bis zu vollständigen Projekten: Finden Sie Ihre nächste Herausforderung.",
+    allTopics: "Alle Themen",
+    topicsLabel: "Nach Themen stöbern",
+    searchLabel: "Was möchten Sie lernen?",
+    searchHint: "Thema, Technologie oder Befehl…",
+    clearSearch: "Suche löschen",
+    clearFilters: "Filter zurücksetzen",
+    allStatuses: "Jeder Fortschritt",
+    statusLabel: "Fortschritt",
+    completed: "Abgeschlossen",
+    toDo: "Offen",
+    openExercise: "Übung öffnen",
+    browseLabel: "Der Katalog",
+    progressDescription: "Ihr Fortschritt wird auf diesem Gerät gespeichert.",
+    footer: "Ein wenig Code. Viele Möglichkeiten.",
+    editorFeature: "Ein Editor zum Experimentieren",
+    previewFeature: "Vorschauen zeigen das Ergebnis",
+    exportFeature: "Ihren Code als ZIP mitnehmen",
+    codeLabel: "Ihr Code",
+    previewLabel: "Vorschau",
+    readyLabel: "Bereit zum Entdecken",
+    themes: "Themen",
+    topicNames: {
+      web: "Webentwicklung",
+      linux: "Linux & SUSE",
+      docker: "Docker",
+      compose: "Compose & Podman",
+      kubernetes: "Kubernetes",
+      rke2: "RKE2",
+      rancher: "Rancher",
+      storage: "Speicher & Persistenz",
+      security: "Sicherheit & Zugriff",
+      monitoring: "Monitoring & Wartung",
+      gitops: "GitOps & Fleet",
+      projects: "Abschlussprojekte",
+    },
+    exerciseCount: (count) => `${count} Übungen`,
+    templateCount: (count) => `${count} Vorlagen`,
+    results: (count) => `${count} Ergebnisse`,
+    viewTopic: (count) => `Alle ${count} Übungen ansehen`,
+  },
   validation: {
     criterionOk: "Kriterium erfüllt.",
     expressionOk: "Ausdruck korrekt.",
@@ -81,8 +135,7 @@ export const de: Messages = {
     shareSuccess: "Freigabelink kopiert",
     shareError: "Link konnte nicht kopiert werden",
     shareTooLong: "Link zu lang (Code kürzen).",
-    draftNotSaved:
-      "Entwurf nicht gespeichert (zu groß für lokalen Speicher)",
+    draftNotSaved: "Entwurf nicht gespeichert (zu groß für lokalen Speicher)",
     resumeDraftTitle: "Entwurf fortsetzen?",
     resumeDraftDescription: (savedAt) =>
       `Eine lokale Sicherung für diese Übung existiert (${savedAt}).`,
@@ -103,12 +156,13 @@ export const de: Messages = {
   },
   externalLab: {
     title: "Externes Labor",
-    description: "Führen Sie die Aufgaben in Ihrer SUSE-VM und Ihrer Docker-, RKE2- oder Rancher-Umgebung aus. Bereiten Sie die Dateien vor und halten Sie die Ergebnisse im Editor fest. Voraussetzungen stehen in der README.",
-    validationNote: "Die Prüfung kontrolliert nur die geschriebenen Dateien und Antworten. Den tatsächlichen Zustand Ihrer VM oder Ihres Clusters müssen Sie im Labor prüfen.",
+    description:
+      "Führen Sie die Aufgaben in Ihrer SUSE-VM und Ihrer Docker-, RKE2- oder Rancher-Umgebung aus. Bereiten Sie die Dateien vor und halten Sie die Ergebnisse im Editor fest. Voraussetzungen stehen in der README.",
+    validationNote:
+      "Die Prüfung kontrolliert nur die geschriebenen Dateien und Antworten. Den tatsächlichen Zustand Ihrer VM oder Ihres Clusters müssen Sie im Labor prüfen.",
   },
   remoteLab: {
-    header: (image, providerLabel) =>
-      `Cloud-Lab — ${image} (${providerLabel})`,
+    header: (image, providerLabel) => `Cloud-Lab — ${image} (${providerLabel})`,
     description:
       "Echte Linux-Umgebung in der Cloud: Docker, Kubernetes oder Systembefehle — ohne lokale Installation. Die Sitzung startet auf Abruf und endet automatisch.",
     billingInfo: (usdPerMinute, maxMinutes) =>

@@ -30,6 +30,12 @@ pnpm install
 - `lib/` — Logique métier, templates, utils, types
 - `data/` — Donnees statiques : `exercises.json` (exercices de code)
 
+## Interface et catalogue
+
+Les exercices sont regroupés en 12 thèmes. La recherche porte sur les titres, descriptions et consignes, sans tenir compte de la casse, des accents ni de l’ordre des mots. Les filtres de thème, niveau, technologie, progression et tri sont conservés dans l’URL ; la progression reste enregistrée sur l’appareil.
+
+Les pages partagent un thème clair/sombre et une navigation responsive. Les énoncés affichent le Markdown du support (listes, tableaux et blocs de code). Monaco est servi localement : `predev` et `prebuild` copient ses fichiers depuis la dépendance installée vers `public/vendor/monaco/` (ignoré par Git). Lancer `pnpm dev` ou `pnpm build` pour préparer ces fichiers, plutôt que `next` directement.
+
 ## Exercices
 
 Les exercices sont définis dans **`data/exercises.json`**. Chaque entrée peut contenir :

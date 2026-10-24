@@ -2,6 +2,59 @@ import type { Messages } from "../types";
 
 export const pl: Messages = {
   locale: "pl",
+  studio: {
+    home: "Strona główna",
+    exercises: "Ćwiczenia",
+    playground: "Playground",
+    eyebrow: "Miejsce do nauki przez praktykę",
+    homeTitle: "Jeden playground.",
+    homeAccent: "Wiele sposobów na naukę.",
+    homeDescription:
+      "Od pierwszego komponentu React po wdrożenie Kubernetes: wybierz temat i ucz się we własnym tempie.",
+    explore: "Przeglądaj ćwiczenia",
+    openPlayground: "Otwórz Playground",
+    topicsTitle: "Temat dla każdego pomysłu.",
+    topicsDescription: "Od podstaw po pełne projekty: znajdź kolejne wyzwanie.",
+    allTopics: "Wszystkie tematy",
+    topicsLabel: "Przeglądaj według tematu",
+    searchLabel: "Czego chcesz się nauczyć?",
+    searchHint: "Temat, technologia lub polecenie…",
+    clearSearch: "Wyczyść wyszukiwanie",
+    clearFilters: "Wyczyść filtry",
+    allStatuses: "Cały postęp",
+    statusLabel: "Postęp",
+    completed: "Ukończone",
+    toDo: "Do zrobienia",
+    openExercise: "Otwórz ćwiczenie",
+    browseLabel: "Katalog",
+    progressDescription: "Postęp jest zapisywany na tym urządzeniu.",
+    footer: "Trochę kodu. Wiele możliwości.",
+    editorFeature: "Edytor do eksperymentowania",
+    previewFeature: "Podgląd pokazuje wynik",
+    exportFeature: "Twój kod do pobrania w ZIP",
+    codeLabel: "Twój kod",
+    previewLabel: "Podgląd",
+    readyLabel: "Gotowe do odkrywania",
+    themes: "tematy",
+    topicNames: {
+      web: "Tworzenie stron",
+      linux: "Linux i SUSE",
+      docker: "Docker",
+      compose: "Compose i Podman",
+      kubernetes: "Kubernetes",
+      rke2: "RKE2",
+      rancher: "Rancher",
+      storage: "Przechowywanie danych",
+      security: "Bezpieczeństwo i dostęp",
+      monitoring: "Monitoring i utrzymanie",
+      gitops: "GitOps i Fleet",
+      projects: "Projekty końcowe",
+    },
+    exerciseCount: (count) => `Ćwiczenia: ${count}`,
+    templateCount: (count) => `Szablony: ${count}`,
+    results: (count) => `Wyniki: ${count}`,
+    viewTopic: (count) => `Zobacz ćwiczenia (${count})`,
+  },
   validation: {
     criterionOk: "Kryterium spełnione.",
     expressionOk: "Wyrażenie poprawne.",
@@ -81,8 +134,7 @@ export const pl: Messages = {
     shareSuccess: "Link skopiowany",
     shareError: "Nie można skopiować linku",
     shareTooLong: "Link zbyt długi (skróć kod).",
-    draftNotSaved:
-      "Szkic nie zapisany (za duży dla pamięci lokalnej)",
+    draftNotSaved: "Szkic nie zapisany (za duży dla pamięci lokalnej)",
     resumeDraftTitle: "Wznowić szkic?",
     resumeDraftDescription: (savedAt) =>
       `Istnieje lokalna kopia tego ćwiczenia (${savedAt}).`,
@@ -103,8 +155,10 @@ export const pl: Messages = {
   },
   externalLab: {
     title: "Laboratorium zewnętrzne",
-    description: "Wykonaj zadania na swojej maszynie SUSE i w środowisku Docker, RKE2 lub Rancher. Przygotuj pliki i zapisz wyniki w edytorze; wymagania znajdziesz w README.",
-    validationNote: "Walidacja sprawdza tylko zapisane pliki i odpowiedzi. Rzeczywisty stan maszyny lub klastra sprawdź w laboratorium.",
+    description:
+      "Wykonaj zadania na swojej maszynie SUSE i w środowisku Docker, RKE2 lub Rancher. Przygotuj pliki i zapisz wyniki w edytorze; wymagania znajdziesz w README.",
+    validationNote:
+      "Walidacja sprawdza tylko zapisane pliki i odpowiedzi. Rzeczywisty stan maszyny lub klastra sprawdź w laboratorium.",
   },
   remoteLab: {
     header: (image, providerLabel) =>

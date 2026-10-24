@@ -2,6 +2,60 @@ import type { Messages } from "../types";
 
 export const es: Messages = {
   locale: "es",
+  studio: {
+    home: "Inicio",
+    exercises: "Ejercicios",
+    playground: "Playground",
+    eyebrow: "Un espacio para aprender haciendo",
+    homeTitle: "Un playground.",
+    homeAccent: "Mil formas de aprender.",
+    homeDescription:
+      "Desde tu primer componente React hasta desplegar Kubernetes: elige un tema y avanza a tu ritmo.",
+    explore: "Explorar los ejercicios",
+    openPlayground: "Abrir el Playground",
+    topicsTitle: "Un tema para cada idea.",
+    topicsDescription:
+      "Desde los fundamentos hasta proyectos completos, encuentra tu próximo reto.",
+    allTopics: "Todos los temas",
+    topicsLabel: "Explorar por tema",
+    searchLabel: "¿Qué quieres aprender?",
+    searchHint: "Un tema, una tecnología, un comando…",
+    clearSearch: "Borrar la búsqueda",
+    clearFilters: "Borrar los filtros",
+    allStatuses: "Todo el progreso",
+    statusLabel: "Progreso",
+    completed: "Completados",
+    toDo: "Pendientes",
+    openExercise: "Abrir el ejercicio",
+    browseLabel: "El catálogo",
+    progressDescription: "Tu progreso se guarda en este dispositivo.",
+    footer: "Un poco de código. Muchas posibilidades.",
+    editorFeature: "Un editor para experimentar",
+    previewFeature: "Vistas previas para ver el resultado",
+    exportFeature: "Tu código para llevar en ZIP",
+    codeLabel: "Tu código",
+    previewLabel: "Vista previa",
+    readyLabel: "Listo para explorar",
+    themes: "temas",
+    topicNames: {
+      web: "Desarrollo web",
+      linux: "Linux y SUSE",
+      docker: "Docker",
+      compose: "Compose y Podman",
+      kubernetes: "Kubernetes",
+      rke2: "RKE2",
+      rancher: "Rancher",
+      storage: "Almacenamiento",
+      security: "Seguridad y acceso",
+      monitoring: "Supervisión y mantenimiento",
+      gitops: "GitOps y Fleet",
+      projects: "Proyectos finales",
+    },
+    exerciseCount: (count) => `${count} ejercicios`,
+    templateCount: (count) => `${count} plantillas`,
+    results: (count) => `${count} resultados`,
+    viewTopic: (count) => `Ver los ${count} ejercicios`,
+  },
   validation: {
     criterionOk: "Criterio cumplido.",
     expressionOk: "Expresión correcta.",
@@ -103,8 +157,10 @@ export const es: Messages = {
   },
   externalLab: {
     title: "Laboratorio externo",
-    description: "Realiza las tareas en tu VM SUSE y tu entorno Docker, RKE2 o Rancher. Prepara los archivos y anota los resultados en el editor; consulta los requisitos en el README.",
-    validationNote: "La validación solo comprueba los archivos y las respuestas escritas. Comprueba el estado real de tu VM o clúster en el laboratorio.",
+    description:
+      "Realiza las tareas en tu VM SUSE y tu entorno Docker, RKE2 o Rancher. Prepara los archivos y anota los resultados en el editor; consulta los requisitos en el README.",
+    validationNote:
+      "La validación solo comprueba los archivos y las respuestas escritas. Comprueba el estado real de tu VM o clúster en el laboratorio.",
   },
   remoteLab: {
     header: (image, providerLabel) =>

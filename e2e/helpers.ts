@@ -6,7 +6,7 @@ const DESKTOP_VIEWPORT = { width: 1280, height: 900 };
 export async function prepareExercisePage(
   page: Page,
   exerciseId: string,
-  locale: Locale = "fr"
+  locale: Locale = "fr",
 ) {
   await page.addInitScript(
     ({ key, loc }) => {
@@ -14,7 +14,7 @@ export async function prepareExercisePage(
       sessionStorage.clear();
       localStorage.setItem(key, loc);
     },
-    { key: LOCALE_STORAGE_KEY, loc: locale }
+    { key: LOCALE_STORAGE_KEY, loc: locale },
   );
 
   await page.setViewportSize(DESKTOP_VIEWPORT);
@@ -26,7 +26,9 @@ export async function prepareExercisePage(
     await page.getByRole("button", { name: t.resumeDraftFresh }).click();
   }
 
-  await expect(page.getByRole("button", { name: getMessages(locale).exercise.validate })).toBeVisible({
+  await expect(
+    page.getByRole("button", { name: getMessages(locale).exercise.validate }),
+  ).toBeVisible({
     timeout: 45_000,
   });
 }
@@ -34,7 +36,11 @@ export async function prepareExercisePage(
 export async function dismissDraftIfPresent(page: Page, locale: Locale = "fr") {
   const draft = page.getByTestId("resume-draft-dialog");
   if (await draft.isVisible({ timeout: 2_000 }).catch(() => false)) {
-    await page.getByRole("button", { name: getMessages(locale).exercise.resumeDraftFresh }).click();
+    await page
+      .getByRole("button", {
+        name: getMessages(locale).exercise.resumeDraftFresh,
+      })
+      .click();
   }
 }
 
@@ -46,13 +52,15 @@ export async function runBashCommand(page: Page, command: string) {
 }
 
 export async function clickValidate(page: Page, locale: Locale = "fr") {
-  await page.getByRole("button", { name: getMessages(locale).exercise.validate }).click();
+  await page
+    .getByRole("button", { name: getMessages(locale).exercise.validate })
+    .click();
 }
 
 export async function waitForCorrectionComplete(
   page: Page,
   criteriaCount: number,
-  locale: Locale = "fr"
+  locale: Locale = "fr",
 ) {
   const panel = page.getByTestId("exercise-correction-panel");
   await expect(panel).toBeVisible();
@@ -60,7 +68,7 @@ export async function waitForCorrectionComplete(
     timeout: criteriaCount * 900 + 5_000,
   });
   await expect(
-    page.getByText(getMessages(locale).exercise.correctionAllPassed)
+    panel.getByText(getMessages(locale).exercise.correctionAllPassed),
   ).toBeVisible();
 }
 
@@ -68,7 +76,9 @@ export async function openSolutionDialog(page: Page, locale: Locale = "fr") {
   const t = getMessages(locale).exercise;
   await page.getByRole("button", { name: t.solution }).click();
   await page.getByRole("button", { name: t.solutionConfirmShow }).click();
-  await expect(page.getByRole("heading", { name: t.solutionDialogTitle })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: t.solutionDialogTitle }),
+  ).toBeVisible();
 }
 
 export async function selectMonacoFile(page: Page, fileName: string) {

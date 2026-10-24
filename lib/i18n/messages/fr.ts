@@ -2,6 +2,60 @@ import type { Messages } from "../types";
 
 export const fr: Messages = {
   locale: "fr",
+  studio: {
+    home: "Accueil",
+    exercises: "Exercices",
+    playground: "Playground",
+    eyebrow: "L’espace pour apprendre en faisant",
+    homeTitle: "Un playground.",
+    homeAccent: "Mille façons d’apprendre.",
+    homeDescription:
+      "Du premier composant React au déploiement Kubernetes : choisissez un thème, expérimentez et avancez à votre rythme.",
+    explore: "Explorer les exercices",
+    openPlayground: "Ouvrir le Playground",
+    topicsTitle: "À chaque envie, son terrain de jeu.",
+    topicsDescription:
+      "Des fondamentaux aux projets complets, trouvez votre prochain défi.",
+    allTopics: "Tous les thèmes",
+    topicsLabel: "Parcourir par thème",
+    searchLabel: "Que voulez-vous apprendre ?",
+    searchHint: "Un sujet, une technologie, une commande…",
+    clearSearch: "Effacer la recherche",
+    clearFilters: "Effacer les filtres",
+    allStatuses: "Toute la progression",
+    statusLabel: "Progression",
+    completed: "Terminés",
+    toDo: "À faire",
+    openExercise: "Ouvrir l’exercice",
+    browseLabel: "Le catalogue",
+    progressDescription: "Votre progression est enregistrée sur cet appareil.",
+    footer: "Un peu de code. Beaucoup de possibilités.",
+    editorFeature: "Un éditeur pour expérimenter",
+    previewFeature: "Des aperçus pour voir le résultat",
+    exportFeature: "Votre code à emporter en ZIP",
+    codeLabel: "Votre code",
+    previewLabel: "Aperçu",
+    readyLabel: "Prêt à explorer",
+    themes: "thèmes",
+    topicNames: {
+      web: "Développement web",
+      linux: "Linux & SUSE",
+      docker: "Docker",
+      compose: "Compose & Podman",
+      kubernetes: "Kubernetes",
+      rke2: "RKE2",
+      rancher: "Rancher",
+      storage: "Stockage & persistance",
+      security: "Sécurité & accès",
+      monitoring: "Supervision & maintenance",
+      gitops: "GitOps & Fleet",
+      projects: "Projets de synthèse",
+    },
+    exerciseCount: (count) => `${count} exercice${count > 1 ? "s" : ""}`,
+    templateCount: (count) => `${count} templates`,
+    results: (count) => `${count} résultat${count > 1 ? "s" : ""}`,
+    viewTopic: (count) => `Voir les ${count} exercices`,
+  },
   validation: {
     criterionOk: "Critère respecté.",
     expressionOk: "Expression respectée.",
@@ -103,12 +157,13 @@ export const fr: Messages = {
   },
   externalLab: {
     title: "Labo externe",
-    description: "Réalisez les manipulations dans votre VM SUSE et votre environnement Docker, RKE2 ou Rancher. Préparez les fichiers et consignez vos résultats dans l’éditeur ; consultez le README pour les prérequis.",
-    validationNote: "Valider contrôle uniquement les fichiers et réponses rédigés. L’état réel de votre VM ou de votre cluster doit être vérifié dans le labo.",
+    description:
+      "Réalisez les manipulations dans votre VM SUSE et votre environnement Docker, RKE2 ou Rancher. Préparez les fichiers et consignez vos résultats dans l’éditeur ; consultez le README pour les prérequis.",
+    validationNote:
+      "Valider contrôle uniquement les fichiers et réponses rédigés. L’état réel de votre VM ou de votre cluster doit être vérifié dans le labo.",
   },
   remoteLab: {
-    header: (image, providerLabel) =>
-      `Lab cloud — ${image} (${providerLabel})`,
+    header: (image, providerLabel) => `Lab cloud — ${image} (${providerLabel})`,
     description:
       "Environnement Linux réel dans le cloud : Docker, Kubernetes ou commandes système, sans rien installer sur votre machine. La session démarre à la demande et s’arrête automatiquement.",
     billingInfo: (usdPerMinute, maxMinutes) =>

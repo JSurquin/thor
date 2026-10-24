@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Generated copies of the installed Monaco distribution.
+    "public/vendor/monaco/**",
+    "test-results/**",
+    "playwright-report/**",
   ]),
 ]);
 

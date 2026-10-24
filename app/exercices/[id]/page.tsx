@@ -84,6 +84,9 @@ import {
   useIsLargeScreen,
 } from "@/lib/hooks/use-container-height";
 import { ShortcutsHelpDialog } from "@/components/shortcuts-help-dialog";
+import { ExerciseInstructions } from "@/components/exercise-instructions";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { getExerciseTopic } from "@/lib/exercise-topics";
 import { ExerciseTerminalPreview } from "@/components/exercise-terminal-preview";
 import {
   exerciseUsesTerminalPreview,
@@ -94,38 +97,42 @@ import { toast } from "sonner";
 import { useLocale } from "@/components/locale-provider";
 import { localizeExercise } from "@/lib/i18n";
 import { LocaleSwitcher } from "@/components/locale-switcher";
-import { ExerciseCorrectionPanel, useStepReveal } from "@/components/exercise-correction-panel";
+import {
+  ExerciseCorrectionPanel,
+  useStepReveal,
+} from "@/components/exercise-correction-panel";
 import { ExerciseEditorLoading } from "@/components/exercise-editor-loading";
 
-const MonacoEditor = dynamic(
-  () => import("@monaco-editor/react").then((mod) => mod.default),
-  {
-    ssr: false,
-    loading: () => <ExerciseEditorLoading />,
-  }
-);
+const MonacoEditor = dynamic(() => import("@/components/code-editor"), {
+  ssr: false,
+  loading: () => <ExerciseEditorLoading />,
+});
 
 const SandpackRoot = dynamic(
   () =>
     import("@codesandbox/sandpack-react").then((mod) => ({
       default: mod.SandpackProvider,
     })),
-  { ssr: false }
+  { ssr: false },
 );
 const SandpackPreview = dynamic(
   () =>
     import("@codesandbox/sandpack-react").then((mod) => ({
       default: mod.SandpackPreview,
     })),
-  { ssr: false }
+  { ssr: false },
 );
 
 type Panel = "instructions" | "editor" | "preview";
 
 function AnimatedSolutionSummary({ text }: { text: string }) {
   const paragraphs = useMemo(
-    () => text.split(/\n+/).map((p) => p.trim()).filter(Boolean),
-    [text]
+    () =>
+      text
+        .split(/\n+/)
+        .map((p) => p.trim())
+        .filter(Boolean),
+    [text],
   );
   const visibleCount = useStepReveal(paragraphs.length);
 
@@ -164,7 +171,7 @@ function ExerciseWorkspaceInner({
   const t = messages.exercise;
   const localized = useMemo(
     () => localizeExercise(exercise, locale),
-    [exercise, locale]
+    [exercise, locale],
   );
   const { resolvedTheme } = useTheme();
   const isDark = (resolvedTheme ?? "dark") === "dark";
@@ -176,14 +183,14 @@ function ExerciseWorkspaceInner({
     useContainerHeight(320);
   const monacoRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const [files, setFiles] = useState(() =>
-    mergeExerciseFilesWithSeed(exercise, seed?.files)
+    mergeExerciseFilesWithSeed(exercise, seed?.files),
   );
   const [selectedFile, setSelectedFile] = useState(() =>
     resolveExerciseSelectedFile(
       exercise,
       mergeExerciseFilesWithSeed(exercise, seed?.files),
-      seed?.selectedFile
-    )
+      seed?.selectedFile,
+    ),
   );
   const [validationResults, setValidationResults] = useState<
     import("@/lib/exercises").ValidationResult[] | null
@@ -253,19 +260,19 @@ function ExerciseWorkspaceInner({
     onFocusInstructions: () => {
       setMobilePanel("instructions");
       window.requestAnimationFrame(() =>
-        instructionsRef.current?.focus({ preventScroll: false })
+        instructionsRef.current?.focus({ preventScroll: false }),
       );
     },
     onFocusEditor: () => {
       setMobilePanel("editor");
       window.requestAnimationFrame(() =>
-        editorRegionRef.current?.focus({ preventScroll: false })
+        editorRegionRef.current?.focus({ preventScroll: false }),
       );
     },
     onFocusPreview: () => {
       setMobilePanel("preview");
       window.requestAnimationFrame(() =>
-        previewRegionRef.current?.focus({ preventScroll: false })
+        previewRegionRef.current?.focus({ preventScroll: false }),
       );
     },
   });
@@ -315,22 +322,35 @@ function ExerciseWorkspaceInner({
       toast.success(t.validateSuccess);
     } else {
       const firstFail = results.find((r) => !r.ok);
-      toast.error(firstFail && !firstFail.ok ? firstFail.message : t.validateError);
+      toast.error(
+        firstFail && !firstFail.ok ? firstFail.message : t.validateError,
+      );
     }
-  }, [exercise, files, locale, isLargeScreen, t.validateSuccess, t.validateError]);
+  }, [
+    exercise,
+    files,
+    locale,
+    isLargeScreen,
+    t.validateSuccess,
+    t.validateError,
+  ]);
 
   const sandpackFiles = useMemo(() => filesToSandpackFormat(files), [files]);
   const exerciseRuntime = useMemo(
     () => resolveExerciseRuntime(exercise),
-    [exercise]
+    [exercise],
   );
   const hasTerminalPreview = exerciseUsesTerminalPreview(
     exercise.templateId,
-    exerciseRuntime
+    exerciseRuntime,
   );
-  const hasSandpack = templateSupportsSandpackPreview(exercise.templateId as TemplateId);
+  const hasSandpack = templateSupportsSandpackPreview(
+    exercise.templateId as TemplateId,
+  );
   const hasHtmlPreview = exercise.templateId === "html";
-  const sandpackRuntimeTemplate = getSandpackTemplate(exercise.templateId as TemplateId);
+  const sandpackRuntimeTemplate = getSandpackTemplate(
+    exercise.templateId as TemplateId,
+  );
 
   const previewContent = useMemo(() => {
     if (hasTerminalPreview) {
@@ -366,37 +386,70 @@ function ExerciseWorkspaceInner({
         {t.noPreview}
       </div>
     );
-  }, [hasTerminalPreview, hasSandpack, hasHtmlPreview, sandpackFiles, sandpackRuntimeTemplate, files, isDark, t.noPreview, exercise]);
+  }, [
+    hasTerminalPreview,
+    hasSandpack,
+    hasHtmlPreview,
+    sandpackFiles,
+    sandpackRuntimeTemplate,
+    files,
+    isDark,
+    t.noPreview,
+    exercise,
+  ]);
 
   const tabs: { id: Panel; label: string; icon: React.ReactNode }[] = [
-    { id: "instructions", label: t.tabInstructions, icon: <FileTextIcon className="size-4" /> },
-    { id: "editor", label: t.tabEditor, icon: <Code2Icon className="size-4" /> },
-    { id: "preview", label: t.tabPreview, icon: <LayoutIcon className="size-4" /> },
+    {
+      id: "instructions",
+      label: t.tabInstructions,
+      icon: <FileTextIcon className="size-4" />,
+    },
+    {
+      id: "editor",
+      label: t.tabEditor,
+      icon: <Code2Icon className="size-4" />,
+    },
+    {
+      id: "preview",
+      label: t.tabPreview,
+      icon: <LayoutIcon className="size-4" />,
+    },
   ];
 
   const hasSolution =
     Boolean(localized.solutionSummary?.trim()) ||
     Boolean(
-      exercise.solutionFiles &&
-        Object.keys(exercise.solutionFiles).length > 0
+      exercise.solutionFiles && Object.keys(exercise.solutionFiles).length > 0,
     );
 
   return (
-    <div className="flex h-dvh min-h-0 flex-col overflow-hidden bg-background">
-      <header className="border-b border-border/40 bg-background/95 backdrop-blur sticky top-0 z-50 shrink-0 safe-area-inset-top">
+    <div className="workspace-shell flex h-dvh min-h-0 flex-col overflow-hidden bg-background">
+      <header className="workspace-toolbar border-b border-border/40 bg-background/95 backdrop-blur sticky top-0 z-50 shrink-0 safe-area-inset-top">
         <div className="mx-auto max-w-[1920px] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 px-3 sm:px-4 py-2 sm:py-3 min-w-0">
           <div className="flex items-center gap-2 min-w-0">
-            <Button variant="ghost" size="icon" className="shrink-0 touch-manipulation" asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="shrink-0 touch-manipulation"
+              asChild
+            >
               <Link href="/exercices" aria-label={t.backToList}>
                 <ChevronLeftIcon className="size-5" />
               </Link>
             </Button>
-            <h1 className="font-semibold text-foreground truncate text-sm sm:text-base min-w-0">
-              {localized.title}
-            </h1>
+            <div className="workspace-title">
+              <small>
+                {messages.studio.exercises} /{" "}
+                {messages.studio.topicNames[getExerciseTopic(exercise)]}
+              </small>
+              <h1 className="font-semibold text-foreground truncate text-sm sm:text-base min-w-0">
+                {localized.title}
+              </h1>
+            </div>
           </div>
           <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 overflow-x-auto flex-nowrap sm:flex-wrap sm:overflow-visible sm:justify-end -mx-3 px-3 sm:mx-0 sm:px-0 pb-0.5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden [&>*]:shrink-0">
-            <LocaleSwitcher className="hidden sm:flex w-[130px] min-h-[36px] h-9" />
+            <ThemeToggle />
+            <LocaleSwitcher className="w-[120px] min-h-[36px] h-9" />
             <Button
               variant="outline"
               size="sm"
@@ -545,17 +598,7 @@ function ExerciseWorkspaceInner({
             </h2>
           </div>
           <div className="flex-1 overflow-auto p-3 sm:p-4 min-h-[200px] lg:min-h-0">
-            <div className="prose prose-sm dark:prose-invert max-w-none text-foreground">
-              {localized.instructions.split("\n").map((line, i) => (
-                <p key={i} className="whitespace-pre-wrap text-sm leading-relaxed mb-2 last:mb-0">
-                  {line.startsWith("##") ? (
-                    <strong className="block mt-3 mb-1 text-foreground">{line.replace(/^#+\s*/, "")}</strong>
-                  ) : (
-                    line
-                  )}
-                </p>
-              ))}
-            </div>
+            <ExerciseInstructions content={localized.instructions} />
           </div>
         </aside>
 
@@ -566,7 +609,7 @@ function ExerciseWorkspaceInner({
             mobilePanel !== "editor" ? "hidden lg:flex" : "flex"
           }`}
         >
-          <div className="border-b border-border/40 px-2 py-1 flex items-center gap-1 overflow-x-auto shrink-0 min-h-[44px]">
+          <div className="workspace-file-tabs border-b border-border/40 bg-card px-2 py-1 flex items-center gap-1 overflow-x-auto shrink-0 min-h-[48px]">
             {filePaths.map((path) => (
               <button
                 key={path}
@@ -624,7 +667,9 @@ function ExerciseWorkspaceInner({
         >
           <div className="px-3 py-2 border-b border-border/40 flex items-center gap-2 shrink-0 min-h-[44px]">
             <LayoutIcon className="size-4 text-muted-foreground" />
-            <span className="text-sm font-medium text-muted-foreground">{t.previewHeading}</span>
+            <span className="text-sm font-medium text-muted-foreground">
+              {t.previewHeading}
+            </span>
           </div>
           <div className="flex-1 overflow-auto p-3 sm:p-4 min-h-[240px] sm:min-h-[280px]">
             {previewContent}
@@ -786,7 +831,7 @@ function ExerciseWithPersistence({ exercise }: { exercise: Exercise }) {
           window.history.replaceState(
             {},
             "",
-            `/exercices/${encodeURIComponent(exercise.id)}`
+            `/exercices/${encodeURIComponent(exercise.id)}`,
           );
           setView({
             phase: "run",

@@ -1,3 +1,5 @@
+import type { ExerciseTopic } from "../exercise-topics";
+
 export const LOCALES = ["fr", "pl", "de", "es"] as const;
 
 export type Locale = (typeof LOCALES)[number];
@@ -23,6 +25,45 @@ export interface ValidationMessages {
 export interface Messages {
   locale: Locale;
   validation: ValidationMessages;
+  studio: {
+    home: string;
+    exercises: string;
+    playground: string;
+    eyebrow: string;
+    homeTitle: string;
+    homeAccent: string;
+    homeDescription: string;
+    explore: string;
+    openPlayground: string;
+    topicsTitle: string;
+    topicsDescription: string;
+    allTopics: string;
+    themes: string;
+    topicsLabel: string;
+    searchLabel: string;
+    searchHint: string;
+    clearSearch: string;
+    clearFilters: string;
+    allStatuses: string;
+    statusLabel: string;
+    completed: string;
+    toDo: string;
+    openExercise: string;
+    browseLabel: string;
+    progressDescription: string;
+    footer: string;
+    editorFeature: string;
+    previewFeature: string;
+    exportFeature: string;
+    codeLabel: string;
+    previewLabel: string;
+    readyLabel: string;
+    topicNames: Record<ExerciseTopic, string>;
+    exerciseCount: (count: number) => string;
+    templateCount: (count: number) => string;
+    results: (count: number) => string;
+    viewTopic: (count: number) => string;
+  };
   exercises: {
     pageTitle: string;
     pageSubtitle: string;
