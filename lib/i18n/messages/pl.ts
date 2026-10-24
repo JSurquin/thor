@@ -101,6 +101,11 @@ export const pl: Messages = {
     exercisesBreadcrumb: "Ćwiczenia",
     languageLabel: "Język",
   },
+  externalLab: {
+    title: "Laboratorium zewnętrzne",
+    description: "Wykonaj zadania na swojej maszynie SUSE i w środowisku Docker, RKE2 lub Rancher. Przygotuj pliki i zapisz wyniki w edytorze; wymagania znajdziesz w README.",
+    validationNote: "Walidacja sprawdza tylko zapisane pliki i odpowiedzi. Rzeczywisty stan maszyny lub klastra sprawdź w laboratorium.",
+  },
   remoteLab: {
     header: (image, providerLabel) =>
       `Lab w chmurze — ${image} (${providerLabel})`,

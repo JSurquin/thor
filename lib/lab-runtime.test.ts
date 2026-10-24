@@ -33,6 +33,15 @@ describe("resolveExerciseRuntime", () => {
     expect(runtime.effectiveKind).toBe("simulated");
   });
 
+  it("garde un labo externe même quand les sessions cloud sont activées", () => {
+    vi.stubEnv("LAB_RUNTIME_ENABLED", "true");
+    const runtime = resolveExerciseRuntime(
+      mockExercise({ templateId: "kubernetes", runtime: { kind: "external" } })
+    );
+    expect(runtime.effectiveKind).toBe("external");
+    expect(exerciseUsesTerminalPreview("kubernetes", runtime)).toBe(true);
+  });
+
   it("honore runtime.remote explicite", () => {
     const runtime = resolveExerciseRuntime(
       mockExercise({

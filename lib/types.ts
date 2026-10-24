@@ -39,8 +39,8 @@ export type ExerciseTemplateId =
   | "docker"
   | "kubernetes";
 
-/** Mode d'exécution : simulé (navigateur) ou remote (VM/conteneur cloud). */
-export type ExerciseRuntimeKind = "simulated" | "remote";
+/** Mode d'exécution : navigateur, session cloud ou labo externe fourni par l'élève. */
+export type ExerciseRuntimeKind = "simulated" | "remote" | "external";
 
 export interface ExerciseRuntimeConfig {
   kind: ExerciseRuntimeKind;
@@ -111,6 +111,8 @@ export interface Exercise {
   templateId: ExerciseTemplateId;
   /** Fichiers initiaux (clés avec ou sans /). Si absent, on utilise le template par défaut. */
   initialFiles?: Record<string, string>;
+  /** Remplace les fichiers du template pour les labs possédant leur propre arborescence. */
+  initialFilesMode?: "merge" | "replace";
   /** Fichier à ouvrir en premier */
   entryFile?: string;
   /** Règles de validation mock (vérifiées au clic "Valider") */

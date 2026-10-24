@@ -3,7 +3,7 @@
  * Prépare l'intégration future Azure/AWS facturée à la minute sans casser le mode actuel.
  */
 
-import type { Exercise, ExerciseRuntimeConfig } from "./types";
+import type { Exercise, ExerciseRuntimeConfig, ExerciseRuntimeKind } from "./types";
 import type { TemplateId } from "./templates";
 
 export type LabProvider = "azure" | "aws";
@@ -32,7 +32,7 @@ export interface LabSession {
 }
 
 export interface ResolvedExerciseRuntime extends ExerciseRuntimeConfig {
-  effectiveKind: "simulated" | "remote";
+  effectiveKind: ExerciseRuntimeKind;
   provider: LabProvider;
   image: string;
   maxMinutes: number;
@@ -91,6 +91,16 @@ export function resolveExerciseRuntime(exercise: Exercise): ResolvedExerciseRunt
     exercise.runtime?.image ?? defaultImageForTemplate(exercise.templateId);
   const maxMinutes = exercise.runtime?.maxMinutes ?? DEFAULT_MAX_MINUTES;
 
+  if (exercise.runtime?.kind === "external") {
+    return {
+      kind: "external",
+      effectiveKind: "external",
+      provider,
+      image,
+      maxMinutes,
+    };
+  }
+
   if (exercise.runtime?.kind === "remote") {
     return {
       kind: "remote",
@@ -140,7 +150,9 @@ export function exerciseUsesTerminalPreview(
   templateId: string,
   runtime: ResolvedExerciseRuntime
 ): boolean {
-  if (runtime.effectiveKind === "remote") return true;
+  if (runtime.effectiveKind === "remote" || runtime.effectiveKind === "external") {
+    return true;
+  }
   return templateId === "bash";
 }
 

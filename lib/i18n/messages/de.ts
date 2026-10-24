@@ -101,6 +101,11 @@ export const de: Messages = {
     exercisesBreadcrumb: "Übungen",
     languageLabel: "Sprache",
   },
+  externalLab: {
+    title: "Externes Labor",
+    description: "Führen Sie die Aufgaben in Ihrer SUSE-VM und Ihrer Docker-, RKE2- oder Rancher-Umgebung aus. Bereiten Sie die Dateien vor und halten Sie die Ergebnisse im Editor fest. Voraussetzungen stehen in der README.",
+    validationNote: "Die Prüfung kontrolliert nur die geschriebenen Dateien und Antworten. Den tatsächlichen Zustand Ihrer VM oder Ihres Clusters müssen Sie im Labor prüfen.",
+  },
   remoteLab: {
     header: (image, providerLabel) =>
       `Cloud-Lab — ${image} (${providerLabel})`,

@@ -101,6 +101,11 @@ export const fr: Messages = {
     exercisesBreadcrumb: "Exercices",
     languageLabel: "Langue",
   },
+  externalLab: {
+    title: "Labo externe",
+    description: "Réalisez les manipulations dans votre VM SUSE et votre environnement Docker, RKE2 ou Rancher. Préparez les fichiers et consignez vos résultats dans l’éditeur ; consultez le README pour les prérequis.",
+    validationNote: "Valider contrôle uniquement les fichiers et réponses rédigés. L’état réel de votre VM ou de votre cluster doit être vérifié dans le labo.",
+  },
   remoteLab: {
     header: (image, providerLabel) =>
       `Lab cloud — ${image} (${providerLabel})`,

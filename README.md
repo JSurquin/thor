@@ -43,6 +43,8 @@ Les exercices sont définis dans **`data/exercises.json`**. Chaque entrée peut 
 
 La validation est **en mémoire** : au clic sur « Valider », les règles sont vérifiées sur le code actuel. Idéal pour tester le flux avant de brancher un backend.
 
+Le parcours **SUSE / Rancher** ajoute les 51 exercices et le projet final de `JSurquin/suz-rancher`, intégrés en données locales avec leurs corrigés. Recherchez « SUSE / Rancher » dans la liste. Les manipulations utilisent un labo externe ; la validation porte sur les fichiers ou réponses rédigés. Voir [le détail de l’import et les prérequis](docs/exercices-suz-rancher.md).
+
 ## Déploiement
 
 Le projet est prêt pour un déploiement sur [Vercel](https://vercel.com) (framework Next.js détecté automatiquement).

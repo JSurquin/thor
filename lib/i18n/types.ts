@@ -102,6 +102,11 @@ export interface Messages {
     exercisesBreadcrumb: string;
     languageLabel: string;
   };
+  externalLab: {
+    title: string;
+    description: string;
+    validationNote: string;
+  };
   remoteLab: {
     header: (image: string, providerLabel: string) => string;
     description: string;

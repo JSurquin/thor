@@ -10,6 +10,7 @@ import { getValidationMessages, DEFAULT_LOCALE, type Locale } from "./i18n";
 import baseData from "@/data/exercises.json";
 import dockerData from "@/data/exercises-docker.json";
 import kubernetesData from "@/data/exercises-kubernetes.json";
+import suzRancherData from "@/data/exercises-suz-rancher.json";
 import { TEMPLATES, type TemplateId } from "./templates";
 import { BASH_TERMINAL_SHELL_JS } from "./bash-exercise-assets";
 import {
@@ -18,7 +19,7 @@ import {
   type ResolvedExerciseRuntime,
 } from "./lab-runtime";
 
-const data = [...baseData, ...dockerData, ...kubernetesData];
+const data = [...baseData, ...dockerData, ...kubernetesData, ...suzRancherData];
 
 export type { Exercise, ExerciseValidation };
 export type { ResolvedExerciseRuntime };
@@ -42,7 +43,9 @@ export function getExerciseById(id: string): Exercise | undefined {
 export function getExerciseInitialFiles(exercise: Exercise): Record<string, string> {
   const templateId = exercise.templateId as TemplateId;
   const template = TEMPLATES[templateId];
-  const base = template ? { ...template.files } : {};
+  const base = template && exercise.initialFilesMode !== "replace"
+    ? { ...template.files }
+    : {};
   if (exercise.initialFiles) {
     for (const [path, content] of Object.entries(exercise.initialFiles)) {
       const key = path.startsWith("/") ? path : `/${path}`;

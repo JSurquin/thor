@@ -101,6 +101,11 @@ export const es: Messages = {
     exercisesBreadcrumb: "Ejercicios",
     languageLabel: "Idioma",
   },
+  externalLab: {
+    title: "Laboratorio externo",
+    description: "Realiza las tareas en tu VM SUSE y tu entorno Docker, RKE2 o Rancher. Prepara los archivos y anota los resultados en el editor; consulta los requisitos en el README.",
+    validationNote: "La validación solo comprueba los archivos y las respuestas escritas. Comprueba el estado real de tu VM o clúster en el laboratorio.",
+  },
   remoteLab: {
     header: (image, providerLabel) =>
       `Lab en la nube — ${image} (${providerLabel})`,
