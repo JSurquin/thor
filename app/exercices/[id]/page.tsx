@@ -587,7 +587,7 @@ function ExerciseWorkspaceInner({
         <aside
           ref={instructionsRef}
           tabIndex={-1}
-          className={`flex flex-col border-b lg:border-b-0 lg:border-r border-border/40 bg-card/30 shrink-0 outline-none ${
+          className={`flex min-h-0 flex-1 flex-col border-b lg:border-b-0 lg:border-r border-border/40 bg-card/30 lg:flex-none outline-none ${
             mobilePanel !== "instructions" ? "hidden lg:flex" : "flex"
           } lg:w-80 xl:w-96`}
         >
@@ -597,7 +597,7 @@ function ExerciseWorkspaceInner({
               {t.instructionsHeading}
             </h2>
           </div>
-          <div className="flex-1 overflow-auto p-3 sm:p-4 min-h-[200px] lg:min-h-0">
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3 sm:p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
             <ExerciseInstructions content={localized.instructions} />
           </div>
         </aside>
