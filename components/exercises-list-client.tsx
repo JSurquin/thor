@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
@@ -17,16 +17,15 @@ import {
 } from "lucide-react";
 import type { Exercise, ExerciseTemplateId } from "@/lib/types";
 import { localizeExercise } from "@/lib/i18n";
-import {
-  readCompletedExerciseIds,
-  clearExerciseProgress,
-} from "@/lib/progress-storage";
+import { clearExerciseProgress } from "@/lib/progress-storage";
 import {
   EXERCISE_TOPICS,
   getExerciseTopic,
   matchesExerciseSearch,
   type ExerciseTopic,
 } from "@/lib/exercise-topics";
+import { useExerciseActivity } from "@/lib/hooks/use-exercise-activity";
+import { ResumeExerciseCard } from "./resume-exercise-card";
 import { TopicIcon } from "@/components/topic-icon";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
@@ -47,19 +46,6 @@ import {
 } from "@/lib/exercise-list-utils";
 import { useLocale } from "@/components/locale-provider";
 
-function subscribeProgress(notify: () => void) {
-  window.addEventListener("thor-progress", notify);
-  window.addEventListener("storage", notify);
-  window.addEventListener("focus", notify);
-  return () => {
-    window.removeEventListener("thor-progress", notify);
-    window.removeEventListener("storage", notify);
-    window.removeEventListener("focus", notify);
-  };
-}
-const progressSnapshot = () => JSON.stringify(readCompletedExerciseIds());
-const emptySnapshot = () => "[]";
-
 export function ExercisesListClient({ exercises }: { exercises: Exercise[] }) {
   const { locale, messages } = useLocale();
   const t = messages.exercises;
@@ -68,14 +54,31 @@ export function ExercisesListClient({ exercises }: { exercises: Exercise[] }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
   const [resetOpen, setResetOpen] = useState(false);
-  const snapshot = useSyncExternalStore(
-    subscribeProgress,
-    progressSnapshot,
-    emptySnapshot,
+  const ids = useMemo(
+    () => exercises.map((exercise) => exercise.id),
+    [exercises],
   );
+  const activity = useExerciseActivity(ids);
   const doneIds = useMemo(
-    () => new Set<string>(JSON.parse(snapshot)),
-    [snapshot],
+    () => new Set(activity.completed),
+    [activity.completed],
+  );
+  const startedIds = useMemo(
+    () => new Set(activity.drafts.map((draft) => draft.exerciseId)),
+    [activity.drafts],
+  );
+  const resumeEntries = useMemo(
+    () =>
+      exercises.map((exercise) => ({
+        id: exercise.id,
+        title: exercise.title,
+        titles: Object.fromEntries(
+          Object.entries(exercise.translations ?? {}).map(
+            ([locale, translation]) => [locale, translation.title],
+          ),
+        ),
+      })),
+    [exercises],
   );
   const query = params.get("q") ?? "";
   const rawTopic = params.get("theme");
@@ -88,7 +91,9 @@ export function ExercisesListClient({ exercises }: { exercises: Exercise[] }) {
   const level = ["debutant", "intermediaire", "avance"].includes(rawLevel ?? "")
     ? rawLevel!
     : "all";
-  const status = ["done", "todo"].includes(params.get("status") ?? "")
+  const status = ["done", "todo", "started"].includes(
+    params.get("status") ?? "",
+  )
     ? params.get("status")!
     : "all";
   const sortMode = ["title", "level"].includes(params.get("sort") ?? "")
@@ -161,7 +166,9 @@ export function ExercisesListClient({ exercises }: { exercises: Exercise[] }) {
             (status === "all" ||
               (status === "done"
                 ? doneIds.has(exercise.id)
-                : !doneIds.has(exercise.id))) &&
+                : status === "started"
+                  ? startedIds.has(exercise.id) && !doneIds.has(exercise.id)
+                  : !doneIds.has(exercise.id))) &&
             matchesExerciseSearch(
               localizeExercise(exercise, locale),
               query,
@@ -178,6 +185,7 @@ export function ExercisesListClient({ exercises }: { exercises: Exercise[] }) {
       templateId,
       status,
       doneIds,
+      startedIds,
       locale,
       query,
       sortMode,
@@ -271,6 +279,7 @@ export function ExercisesListClient({ exercises }: { exercises: Exercise[] }) {
         </div>
       </aside>
       <div className="min-w-0" ref={resultsRef}>
+        <ResumeExerciseCard entries={resumeEntries} />
         <div
           className="catalog-search-panel"
           role="search"
@@ -349,6 +358,7 @@ export function ExercisesListClient({ exercises }: { exercises: Exercise[] }) {
               <option value="all">{ui.allStatuses}</option>
               <option value="todo">{ui.toDo}</option>
               <option value="done">{ui.completed}</option>
+              <option value="started">{messages.ux.inProgress}</option>
             </select>
           </div>
         </div>
@@ -431,7 +441,7 @@ export function ExercisesListClient({ exercises }: { exercises: Exercise[] }) {
                     return (
                       <li key={exercise.id}>
                         <Link
-                          href={`/exercices/${exercise.id}`}
+                          href={`/exercices/${exercise.id}${startedIds.has(exercise.id) && !done ? "?resume=1" : ""}`}
                           className={`exercise-card ${done ? "is-completed" : ""}`}
                         >
                           <div className="mb-5 flex items-center justify-between gap-2">
@@ -452,6 +462,11 @@ export function ExercisesListClient({ exercises }: { exercises: Exercise[] }) {
                               </span>
                             )}
                           </div>
+                          {startedIds.has(exercise.id) && !done && (
+                            <span className="in-progress-badge">
+                              {messages.ux.inProgress}
+                            </span>
+                          )}
                           <h4>
                             {localized.title.replace(/^SUSE \/ Rancher — /, "")}
                           </h4>
@@ -459,7 +474,13 @@ export function ExercisesListClient({ exercises }: { exercises: Exercise[] }) {
                             {localized.description}
                           </p>
                           <div className="exercise-card-footer">
-                            <span>{done ? ui.completed : ui.openExercise}</span>
+                            <span>
+                              {done
+                                ? ui.completed
+                                : startedIds.has(exercise.id)
+                                  ? messages.ux.continueExercise
+                                  : ui.openExercise}
+                            </span>
                             <ArrowUpRightIcon
                               className="size-4 transition-transform"
                               aria-hidden="true"

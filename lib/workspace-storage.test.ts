@@ -27,11 +27,13 @@ describe("workspace-storage (playground)", () => {
   });
 
   it("write puis read retourne le brouillon", () => {
-    expect(writePlaygroundDraft({
-      templateId: "react",
-      files: { "/App.js": "x" },
-      selectedFile: "/App.js",
-    })).toBe(true);
+    expect(
+      writePlaygroundDraft({
+        templateId: "react",
+        files: { "/App.js": "x" },
+        selectedFile: "/App.js",
+      }),
+    ).toBe(true);
     const d = readPlaygroundDraft();
     expect(d?.templateId).toBe("react");
     expect(d?.files["/App.js"]).toBe("x");
@@ -85,5 +87,52 @@ describe("workspace-storage (exercise)", () => {
     clearExerciseDraft("a");
     expect(readExerciseDraft("a")).toBeNull();
     expect(readExerciseDraft("b")).not.toBeNull();
+  });
+});
+
+describe("résumé des exercices commencés", () => {
+  it("classe uniquement les brouillons connus, valides, du plus récent au plus ancien", async () => {
+    const { readExerciseDraftSummaries } = await import("./workspace-storage");
+    localStorage.setItem(
+      "thor.workspace.exercise.v1:a",
+      JSON.stringify({
+        v: 1,
+        exerciseId: "a",
+        files: { "/f": "texte" },
+        selectedFile: "/f",
+        savedAt: 100,
+      }),
+    );
+    localStorage.setItem(
+      "thor.workspace.exercise.v1:b",
+      JSON.stringify({
+        v: 1,
+        exerciseId: "b",
+        files: { "/f": "texte" },
+        selectedFile: "/f",
+        savedAt: 200,
+      }),
+    );
+    localStorage.setItem(
+      "thor.workspace.exercise.v1:invalid",
+      JSON.stringify({
+        v: 1,
+        exerciseId: "invalid",
+        files: [],
+        selectedFile: "/f",
+        savedAt: 300,
+      }),
+    );
+    expect(readExerciseDraftSummaries(["a", "b", "invalid", "absent"])).toEqual(
+      [
+        { exerciseId: "b", savedAt: 200 },
+        { exerciseId: "a", savedAt: 100 },
+      ],
+    );
+    expect(readExerciseDraftSummaries(["a"])).toEqual([
+      { exerciseId: "a", savedAt: 100 },
+    ]);
+    clearExerciseDraft("a");
+    expect(readExerciseDraftSummaries(["a"])).toEqual([]);
   });
 });

@@ -25,6 +25,28 @@ export interface ValidationMessages {
 export interface Messages {
   locale: Locale;
   validation: ValidationMessages;
+  ux: {
+    importZip: string;
+    moreActions: string;
+    labContext: string;
+    maximize: string;
+    restore: string;
+    resize: string;
+    resumeExercise: string;
+    inProgress: string;
+    continueExercise: string;
+    previewLoading: string;
+    previewSlow: string;
+    previewError: string;
+    retry: string;
+    previewReady: string;
+    errorDetails: string;
+    lightTheme: string;
+    darkTheme: string;
+    systemTheme: string;
+    theme: string;
+    layoutHint: string;
+  };
   studio: {
     home: string;
     exercises: string;

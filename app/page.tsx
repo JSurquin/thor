@@ -33,6 +33,15 @@ export default function Home() {
         count={exercises.length}
         templateCount={TEMPLATE_IDS.length}
         topics={topics}
+        resumeEntries={exercises.map((exercise) => ({
+          id: exercise.id,
+          title: exercise.title,
+          titles: Object.fromEntries(
+            Object.entries(exercise.translations ?? {}).map(
+              ([locale, translation]) => [locale, translation.title],
+            ),
+          ),
+        }))}
       />
     </>
   );

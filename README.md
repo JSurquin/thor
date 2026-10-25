@@ -36,6 +36,10 @@ Les exercices sont regroupés en 12 thèmes. La recherche porte sur les titres, 
 
 Les pages partagent un thème clair/sombre et une navigation responsive. Les énoncés affichent le Markdown du support (listes, tableaux et blocs de code). Monaco est servi localement : `predev` et `prebuild` copient ses fichiers depuis la dépendance installée vers `public/vendor/monaco/` (ignoré par Git). Lancer `pnpm dev` ou `pnpm build` pour préparer ces fichiers, plutôt que `next` directement.
 
+Les brouillons permettent de reprendre le dernier exercice commencé depuis l’accueil ou le catalogue ; les exercices terminés restent distingués. Sur mobile, les actions secondaires sont regroupées dans le menu « Autres actions », le fichier ouvert apparaît dans l’onglet Code et une correction peut être rouverte après fermeture. Sur ordinateur, les séparateurs permettent de redimensionner les panneaux, avec agrandissement temporaire et restauration de la disposition.
+
+Le contexte général des labs est repliable sans retirer de consignes. Les aperçus annoncent leur chargement, une attente prolongée ou une erreur et proposent une relance ; les previews Sandpack nécessitent toujours l’accès à leurs services externes. La relance de l’aperçu conserve le code en cours.
+
 ## Exercices
 
 Les exercices sont définis dans **`data/exercises.json`**. Chaque entrée peut contenir :

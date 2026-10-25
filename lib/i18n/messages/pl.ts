@@ -2,6 +2,30 @@ import type { Messages } from "../types";
 
 export const pl: Messages = {
   locale: "pl",
+  ux: {
+    importZip: "Importuj ZIP",
+    moreActions: "Więcej działań",
+    labContext: "Kontekst i wymagania laboratorium",
+    maximize: "Powiększ",
+    restore: "Przywróć panele",
+    resize: "Zmień rozmiar paneli",
+    resumeExercise: "Wznów moje ćwiczenie",
+    inProgress: "Rozpoczęte",
+    continueExercise: "Kontynuuj",
+    previewLoading: "Przygotowywanie podglądu…",
+    previewSlow:
+      "Podgląd odpowiada zbyt długo. Sprawdź połączenie i spróbuj ponownie. Twój kod pozostaje zapisany.",
+    previewError:
+      "W podglądzie wystąpił błąd. Sprawdź kod lub uruchom go ponownie.",
+    retry: "Spróbuj ponownie",
+    previewReady: "Podgląd gotowy",
+    errorDetails: "Szczegóły błędu",
+    lightTheme: "Jasny",
+    darkTheme: "Ciemny",
+    systemTheme: "Systemowy",
+    theme: "Wygląd",
+    layoutHint: "Przeciągnij separatory, aby dostosować panele.",
+  },
   studio: {
     home: "Strona główna",
     exercises: "Ćwiczenia",

@@ -1,12 +1,16 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 /** Mesure la hauteur d’un conteneur pour Monaco (height="100%" échoue en flex mobile). */
 export function useContainerHeight(fallback = 320) {
-  const ref = useRef<HTMLDivElement>(null);
+  const [element, setElement] = useState<HTMLDivElement | null>(null);
+  const ref = useCallback(
+    (node: HTMLDivElement | null) => setElement(node),
+    [],
+  );
   const [height, setHeight] = useState(fallback);
 
   useEffect(() => {
-    const el = ref.current;
+    const el = element;
     if (!el) return;
 
     const update = () => {
@@ -18,7 +22,7 @@ export function useContainerHeight(fallback = 320) {
     const ro = new ResizeObserver(update);
     ro.observe(el);
     return () => ro.disconnect();
-  }, []);
+  }, [element]);
 
   return { ref, height };
 }
@@ -27,7 +31,7 @@ export function useContainerHeight(fallback = 320) {
 export function useIsLargeScreen(breakpoint = 1024) {
   const query = `(min-width: ${breakpoint}px)`;
   const [isLargeScreen, setIsLargeScreen] = useState(() =>
-    typeof window !== "undefined" ? window.matchMedia(query).matches : false
+    typeof window !== "undefined" ? window.matchMedia(query).matches : false,
   );
 
   useEffect(() => {

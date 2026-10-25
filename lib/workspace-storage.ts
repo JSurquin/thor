@@ -61,10 +61,9 @@ export function readPlaygroundDraft(): PlaygroundPersistedV1 | null {
 }
 
 export function writePlaygroundDraft(
-  data: Pick<
-    PlaygroundPersistedV1,
-    "templateId" | "files" | "selectedFile"
-  > & { savedAt?: number }
+  data: Pick<PlaygroundPersistedV1, "templateId" | "files" | "selectedFile"> & {
+    savedAt?: number;
+  },
 ): boolean {
   if (typeof window === "undefined") return false;
   try {
@@ -98,7 +97,7 @@ function exerciseStorageKey(exerciseId: string): string {
 }
 
 export function readExerciseDraft(
-  exerciseId: string
+  exerciseId: string,
 ): ExercisePersistedV1 | null {
   if (typeof window === "undefined") return null;
   try {
@@ -125,10 +124,9 @@ export function readExerciseDraft(
 }
 
 export function writeExerciseDraft(
-  data: Pick<
-    ExercisePersistedV1,
-    "exerciseId" | "files" | "selectedFile"
-  > & { savedAt?: number }
+  data: Pick<ExercisePersistedV1, "exerciseId" | "files" | "selectedFile"> & {
+    savedAt?: number;
+  },
 ): boolean {
   if (typeof window === "undefined") return false;
   try {
@@ -142,6 +140,7 @@ export function writeExerciseDraft(
     const s = JSON.stringify(payload);
     if (s.length > WORKSPACE_MAX_JSON_CHARS) return false;
     localStorage.setItem(exerciseStorageKey(data.exerciseId), s);
+    window.dispatchEvent(new Event("thor-workspace"));
     return true;
   } catch {
     return false;
@@ -152,15 +151,13 @@ export function clearExerciseDraft(exerciseId: string): void {
   if (typeof window === "undefined") return;
   try {
     localStorage.removeItem(exerciseStorageKey(exerciseId));
+    window.dispatchEvent(new Event("thor-workspace"));
   } catch {
     /* ignore */
   }
 }
 
-export function formatSavedAt(
-  savedAt: number,
-  locale = "fr-FR"
-): string {
+export function formatSavedAt(savedAt: number, locale = "fr-FR"): string {
   try {
     return new Date(savedAt).toLocaleString(locale, {
       dateStyle: "short",
@@ -168,5 +165,37 @@ export function formatSavedAt(
     });
   } catch {
     return "";
+  }
+}
+
+export type ExerciseDraftSummary = { exerciseId: string; savedAt: number };
+
+/** Metadata only; known catalog IDs prevent stale or foreign drafts becoming links. */
+export function readExerciseDraftSummaries(
+  exerciseIds: readonly string[],
+): ExerciseDraftSummary[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const summaries: ExerciseDraftSummary[] = [];
+    for (const exerciseId of exerciseIds) {
+      const raw = localStorage.getItem(exerciseStorageKey(exerciseId));
+      if (!raw) continue;
+      const draft = safeJsonParse(raw) as Partial<ExercisePersistedV1> | null;
+      if (
+        draft?.v !== WORKSPACE_VERSION ||
+        draft.exerciseId !== exerciseId ||
+        !draft.files ||
+        typeof draft.files !== "object" ||
+        Array.isArray(draft.files) ||
+        typeof draft.selectedFile !== "string" ||
+        typeof draft.savedAt !== "number" ||
+        !Number.isFinite(draft.savedAt)
+      )
+        continue;
+      summaries.push({ exerciseId, savedAt: draft.savedAt });
+    }
+    return summaries.sort((a, b) => b.savedAt - a.savedAt);
+  } catch {
+    return [];
   }
 }

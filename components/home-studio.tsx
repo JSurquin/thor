@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ResumeExerciseCard, type ResumeEntry } from "./resume-exercise-card";
 import {
   ArrowDownIcon,
   ArrowRightIcon,
@@ -20,10 +21,12 @@ export function HomeStudio({
   count,
   templateCount,
   topics,
+  resumeEntries,
 }: {
   count: number;
   templateCount: number;
   topics: { id: ExerciseTopic; count: number }[];
+  resumeEntries: ResumeEntry[];
 }) {
   const { messages } = useLocale();
   const t = messages.studio;
@@ -31,6 +34,9 @@ export function HomeStudio({
     <div className="studio-page">
       <SiteHeader />
       <main>
+        <div className="site-container pt-5 empty:hidden">
+          <ResumeExerciseCard entries={resumeEntries} />
+        </div>
         <section className="site-container hero-section">
           <div className="hero-copy">
             <div className="eyebrow">

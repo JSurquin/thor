@@ -2,6 +2,30 @@ import type { Messages } from "../types";
 
 export const es: Messages = {
   locale: "es",
+  ux: {
+    importZip: "Importar ZIP",
+    moreActions: "Más acciones",
+    labContext: "Contexto y requisitos del laboratorio",
+    maximize: "Ampliar",
+    restore: "Restaurar paneles",
+    resize: "Cambiar el tamaño de los paneles",
+    resumeExercise: "Retomar mi ejercicio",
+    inProgress: "Empezado",
+    continueExercise: "Continuar",
+    previewLoading: "Preparando la vista previa…",
+    previewSlow:
+      "La vista previa tarda en responder. Comprueba la conexión e inténtalo de nuevo. Tu código sigue guardado.",
+    previewError:
+      "La vista previa ha encontrado un error. Revisa el código o reiníciala.",
+    retry: "Reintentar",
+    previewReady: "Vista previa lista",
+    errorDetails: "Detalles del error",
+    lightTheme: "Claro",
+    darkTheme: "Oscuro",
+    systemTheme: "Sistema",
+    theme: "Apariencia",
+    layoutHint: "Arrastra los separadores para ajustar los paneles.",
+  },
   studio: {
     home: "Inicio",
     exercises: "Ejercicios",

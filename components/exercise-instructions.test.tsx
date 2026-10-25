@@ -35,3 +35,18 @@ describe("énoncés Markdown", () => {
     );
   });
 });
+
+it("garde le contexte du labo replié et toutes les consignes disponibles", () => {
+  render(
+    <ExerciseInstructions
+      content={
+        "## Réalisation dans Thor\nUn labo externe est nécessaire.\n\n# Exercice 1\n\n## Objectif\nInstaller Rancher."
+      }
+    />,
+  );
+  const context = screen.getByTestId("exercise-lab-context");
+  expect(context).not.toHaveAttribute("open");
+  expect(context).toHaveTextContent("Un labo externe est nécessaire.");
+  expect(screen.getByRole("heading", { name: "Objectif" })).toBeVisible();
+  expect(screen.getByText("Installer Rancher.")).toBeVisible();
+});

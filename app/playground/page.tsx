@@ -18,6 +18,12 @@ import {
   FolderTreeIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { HtmlPreview } from "@/components/html-preview";
+import { WorkspaceActionMenu } from "@/components/workspace-action-menu";
+import {
+  WorkspacePanels,
+  WorkspacePaneControls,
+} from "@/components/workspace-panels";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { useLocale } from "@/components/locale-provider";
@@ -80,20 +86,9 @@ const MonacoEditor = dynamic(() => import("@/components/code-editor"), {
   ),
 });
 
-const SandpackRoot = dynamic(
-  () =>
-    import("@codesandbox/sandpack-react").then((mod) => ({
-      default: mod.SandpackProvider,
-    })),
-  { ssr: false },
-);
-const SandpackPreview = dynamic(
-  () =>
-    import("@codesandbox/sandpack-react").then((mod) => ({
-      default: mod.SandpackPreview,
-    })),
-  { ssr: false },
-);
+const LivePreview = dynamic(() => import("@/components/live-preview"), {
+  ssr: false,
+});
 
 type PlaygroundPanel = "editor" | "preview";
 
@@ -144,7 +139,7 @@ function PlaygroundWorkspace({
 
   useDocumentTitle(`Playground — ${template.name} · lab.andromed`);
 
-  const shouldRenderEditor = isLargeScreen || mobilePanel === "editor";
+  const shouldRenderEditor = true;
 
   useEffect(() => {
     if (!shouldRenderEditor) return;
@@ -245,29 +240,18 @@ function PlaygroundWorkspace({
   const previewContent = useMemo(() => {
     if (hasSandpackPreview) {
       return (
-        <SandpackRoot
+        <LivePreview
           template={sandpackTemplate}
           files={sandpackFiles}
           theme={isDark ? "dark" : "light"}
-          options={{
-            recompileMode: "delayed",
-            recompileDelay: 400,
-          }}
-        >
-          <SandpackPreview
-            style={{ minHeight: 360, borderRadius: 8 }}
-            showOpenInCodeSandbox={false}
-          />
-        </SandpackRoot>
+        />
       );
     }
     if (hasHtmlPreview) {
       return (
-        <iframe
-          title="Aperçu HTML"
+        <HtmlPreview
+          title={messages.exercise.previewHeading}
           srcDoc={buildHtmlPreview(files)}
-          className="w-full min-h-[360px] rounded-lg border border-border bg-white"
-          sandbox="allow-scripts"
         />
       );
     }
@@ -290,6 +274,7 @@ function PlaygroundWorkspace({
   }, [
     hasSandpackPreview,
     hasHtmlPreview,
+    messages.exercise.previewHeading,
     sandpackTemplate,
     sandpackFiles,
     isDark,
@@ -344,88 +329,154 @@ function PlaygroundWorkspace({
             </Link>
           </div>
 
-          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 overflow-x-auto flex-nowrap sm:flex-wrap sm:overflow-visible min-h-[44px] -mx-3 px-3 sm:mx-0 sm:px-0 pb-0.5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden [&>*]:shrink-0">
-            <ThemeToggle />
-            <LocaleSwitcher className="h-9 min-h-9 w-[115px]" />
-            <Select
-              value={templateId}
-              onValueChange={(v) => setTemplate(v as TemplateId)}
+          {isLargeScreen ? (
+            <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 overflow-x-auto flex-nowrap sm:flex-wrap sm:overflow-visible min-h-[44px] -mx-3 px-3 sm:mx-0 sm:px-0 pb-0.5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden [&>*]:shrink-0">
+              <ThemeToggle />
+              <LocaleSwitcher className="h-9 min-h-9 w-[115px]" />
+              <Select
+                value={templateId}
+                onValueChange={(v) => setTemplate(v as TemplateId)}
+              >
+                <SelectTrigger className="w-[120px] sm:w-[140px] min-h-[40px] touch-manipulation">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {PLAYGROUND_TEMPLATE_ORDER.map((id) => (
+                    <SelectItem key={id} value={id}>
+                      <span className="flex items-center gap-2">
+                        <span>{TEMPLATES[id].icon}</span>
+                        {TEMPLATES[id].name}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setHelpOpen(true)}
+                className="gap-1.5 min-h-[40px] touch-manipulation"
+                aria-label="Raccourcis clavier"
+              >
+                <KeyboardIcon className="size-4" />
+                <span className="hidden sm:inline">Aide</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => void copyShareLink()}
+                className="gap-1.5 min-h-[40px] touch-manipulation"
+                title="Copier un lien avec l’état actuel"
+              >
+                <Link2Icon className="size-4" />
+                <span className="hidden lg:inline">Lien</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => zipInputRef.current?.click()}
+                className="gap-1.5 min-h-[40px] touch-manipulation"
+                title="Importer un ZIP (fusion dans les fichiers)"
+              >
+                <UploadIcon className="size-4" />
+                <span className="hidden lg:inline">ZIP</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => void copyActiveFile()}
+                className="gap-1.5 min-h-[40px] touch-manipulation"
+                aria-label="Copier le fichier ouvert"
+                data-testid="playground-copy-file"
+              >
+                <ClipboardCopyIcon className="size-4" />
+                <span className="hidden sm:inline">Copier</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={reset}
+                className="gap-1.5 min-h-[40px] touch-manipulation"
+              >
+                <RotateCcwIcon className="size-4" />
+                <span className="hidden sm:inline">Reset</span>
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => setOfflineExportOpen(true)}
+                className="gap-1.5 min-h-[40px] touch-manipulation"
+                data-testid="playground-export-offline"
+              >
+                <WifiOffIcon className="size-4" />
+                <span className="hidden sm:inline">Hors ligne</span>
+              </Button>
+            </div>
+          ) : (
+            <div
+              className="flex w-full items-center gap-2"
+              data-testid="playground-mobile-actions"
             >
-              <SelectTrigger className="w-[120px] sm:w-[140px] min-h-[40px] touch-manipulation">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {PLAYGROUND_TEMPLATE_ORDER.map((id) => (
-                  <SelectItem key={id} value={id}>
-                    <span className="flex items-center gap-2">
-                      <span>{TEMPLATES[id].icon}</span>
-                      {TEMPLATES[id].name}
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setHelpOpen(true)}
-              className="gap-1.5 min-h-[40px] touch-manipulation"
-              aria-label="Raccourcis clavier"
-            >
-              <KeyboardIcon className="size-4" />
-              <span className="hidden sm:inline">Aide</span>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => void copyShareLink()}
-              className="gap-1.5 min-h-[40px] touch-manipulation"
-              title="Copier un lien avec l’état actuel"
-            >
-              <Link2Icon className="size-4" />
-              <span className="hidden lg:inline">Lien</span>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => zipInputRef.current?.click()}
-              className="gap-1.5 min-h-[40px] touch-manipulation"
-              title="Importer un ZIP (fusion dans les fichiers)"
-            >
-              <UploadIcon className="size-4" />
-              <span className="hidden lg:inline">ZIP</span>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => void copyActiveFile()}
-              className="gap-1.5 min-h-[40px] touch-manipulation"
-              aria-label="Copier le fichier ouvert"
-              data-testid="playground-copy-file"
-            >
-              <ClipboardCopyIcon className="size-4" />
-              <span className="hidden sm:inline">Copier</span>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={reset}
-              className="gap-1.5 min-h-[40px] touch-manipulation"
-            >
-              <RotateCcwIcon className="size-4" />
-              <span className="hidden sm:inline">Reset</span>
-            </Button>
-            <Button
-              size="sm"
-              onClick={() => setOfflineExportOpen(true)}
-              className="gap-1.5 min-h-[40px] touch-manipulation"
-              data-testid="playground-export-offline"
-            >
-              <WifiOffIcon className="size-4" />
-              <span className="hidden sm:inline">Hors ligne</span>
-            </Button>
-          </div>
+              {" "}
+              <Select
+                value={templateId}
+                onValueChange={(v) => setTemplate(v as TemplateId)}
+              >
+                <SelectTrigger className="w-[120px] sm:w-[140px] min-h-[40px] touch-manipulation">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {PLAYGROUND_TEMPLATE_ORDER.map((id) => (
+                    <SelectItem key={id} value={id}>
+                      <span className="flex items-center gap-2">
+                        <span>{TEMPLATES[id].icon}</span>
+                        {TEMPLATES[id].name}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button
+                className="ml-auto min-h-11 gap-2"
+                data-testid="playground-export-offline"
+                onClick={() => setOfflineExportOpen(true)}
+                aria-label={messages.exercise.offline}
+              >
+                <WifiOffIcon className="size-4" />
+                {messages.exercise.offline}
+              </Button>
+              <WorkspaceActionMenu
+                actions={[
+                  {
+                    label: messages.exercise.help,
+                    icon: <KeyboardIcon className="size-4" />,
+                    onSelect: () => setHelpOpen(true),
+                  },
+                  {
+                    label: messages.exercise.share,
+                    icon: <Link2Icon className="size-4" />,
+                    onSelect: () => void copyShareLink(),
+                  },
+                  {
+                    label: messages.ux.importZip,
+                    icon: <UploadIcon className="size-4" />,
+                    onSelect: () => zipInputRef.current?.click(),
+                  },
+                  {
+                    label: messages.exercise.copy,
+                    icon: <ClipboardCopyIcon className="size-4" />,
+                    onSelect: () => void copyActiveFile(),
+                    testId: "playground-copy-file",
+                  },
+                  {
+                    label: messages.exercise.reset,
+                    icon: <RotateCcwIcon className="size-4" />,
+                    onSelect: reset,
+                  },
+                ]}
+              />
+            </div>
+          )}
         </div>
 
         <div className="flex lg:hidden border-t border-border/40 bg-muted/20">
@@ -434,6 +485,11 @@ function PlaygroundWorkspace({
               key={tab.id}
               type="button"
               onClick={() => setMobilePanel(tab.id)}
+              aria-label={tab.label}
+              aria-describedby={
+                tab.id === "editor" ? "active-playground-file" : undefined
+              }
+              aria-pressed={mobilePanel === tab.id}
               className={`flex-1 flex items-center justify-center gap-1.5 py-3 text-sm font-medium transition-colors touch-manipulation min-h-[48px] ${
                 mobilePanel === tab.id
                   ? "bg-background text-primary border-b-2 border-primary shadow-sm"
@@ -441,115 +497,151 @@ function PlaygroundWorkspace({
               }`}
             >
               {tab.icon}
-              {tab.label}
+              <span className="min-w-0">
+                <span className="block">{tab.label}</span>
+                {tab.id === "editor" && (
+                  <span
+                    id="active-playground-file"
+                    className="block max-w-36 truncate text-[9px] font-normal opacity-75"
+                    title={activeFile}
+                  >
+                    {activeFile.replace(/^\//, "")}
+                  </span>
+                )}
+              </span>
             </button>
           ))}
         </div>
       </header>
 
-      <div className="flex-1 flex flex-col lg:flex-row min-h-0">
-        <div
-          className={`flex flex-col w-full lg:w-1/2 min-w-0 border-r border-border/40 ${
-            mobilePanel !== "editor" ? "hidden lg:flex" : "flex"
-          }`}
-        >
-          <div className="lg:hidden border-b border-border/40 px-2 py-2 shrink-0 flex items-center gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="gap-2 min-h-[40px] touch-manipulation"
-              onClick={() => setMobileFileTreeOpen(true)}
-            >
-              <FolderTreeIcon className="size-4" />
-              Fichiers
-            </Button>
-            <span
-              className="text-xs text-muted-foreground truncate flex-1 min-w-0"
-              title={activeFile}
-            >
-              {activeFile.replace(/^\//, "")}
-            </span>
-          </div>
-
-          <div className="flex flex-1 flex-col lg:flex-row min-h-0 min-h-[260px] sm:min-h-[300px] lg:min-h-[400px]">
-            <aside className="hidden lg:flex w-[220px] xl:w-56 shrink-0 flex-col border-b lg:border-b-0 lg:border-r border-border/40 bg-muted/10">
-              <PlaygroundFileTree
-                filePaths={filePaths}
-                activeFile={activeFile}
-                onSelectFile={setActiveFile}
-                onAddFile={addFile}
-                onRemoveFile={removeFile}
-                className="flex-1 min-h-0"
-              />
-            </aside>
-            <div
-              ref={editorContainerRef}
-              className="relative flex-1 min-w-0 min-h-[240px] flex flex-col overflow-hidden"
-            >
-              <div className="hidden min-h-11 items-center justify-between gap-3 border-b border-border bg-card px-4 text-xs lg:flex">
-                <span className="flex min-w-0 items-center gap-2">
-                  <FileCodeIcon className="size-3.5 shrink-0 text-primary" />
-                  <span className="truncate">
+      <WorkspacePanels
+        id="playground-workspace"
+        activePanel={mobilePanel}
+        panels={[
+          {
+            id: "editor",
+            label: messages.exercise.tabEditor,
+            size: 60,
+            min: 35,
+            content: (
+              <div
+                className={`flex flex-col w-full min-w-0 border-r border-border/40 ${
+                  mobilePanel !== "editor" ? "hidden lg:flex" : "flex"
+                }`}
+              >
+                <div className="lg:hidden border-b border-border/40 px-2 py-2 shrink-0 flex items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="gap-2 min-h-[40px] touch-manipulation"
+                    onClick={() => setMobileFileTreeOpen(true)}
+                  >
+                    <FolderTreeIcon className="size-4" />
+                    Fichiers
+                  </Button>
+                  <span
+                    className="text-xs text-muted-foreground truncate flex-1 min-w-0"
+                    title={activeFile}
+                  >
                     {activeFile.replace(/^\//, "")}
                   </span>
-                </span>
-                <span className="workspace-status">
-                  <span className="status-dot" />
-                  {getLanguage(activeFile)}
-                </span>
-              </div>
-              {shouldRenderEditor ? (
-                <MonacoEditor
-                  height={
-                    isLargeScreen
-                      ? Math.max(100, editorHeight - 44)
-                      : editorHeight
-                  }
-                  language={getLanguage(activeFile)}
-                  value={files[activeFile] ?? ""}
-                  onChange={(value) => updateFile(activeFile, value ?? "")}
-                  onMount={(instance) => {
-                    monacoRef.current = instance;
-                    window.requestAnimationFrame(() => instance.layout());
-                  }}
-                  theme={isDark ? "vs-dark" : "vs"}
-                  options={{
-                    readOnly: false,
-                    minimap: { enabled: false },
-                    fontSize: 14,
-                    padding: { top: 16 },
-                    scrollBeyondLastLine: false,
-                    lineNumbers: "on",
-                    wordWrap: "on",
-                    automaticLayout: true,
-                  }}
-                />
-              ) : (
-                <div className="flex items-center justify-center h-full bg-muted/30 text-muted-foreground text-sm">
-                  Chargement de l’éditeur…
                 </div>
-              )}
-            </div>
-          </div>
-        </div>
 
-        <div
-          className={`flex flex-col w-full lg:w-1/2 min-w-0 bg-muted/20 ${
-            mobilePanel !== "preview" ? "hidden lg:flex" : "flex"
-          }`}
-        >
-          <div className="px-3 py-2 border-b border-border/40 flex items-center gap-2 shrink-0 min-h-[44px]">
-            <LayoutIcon className="size-4 text-muted-foreground" />
-            <span className="text-sm font-medium text-muted-foreground">
-              Aperçu
-            </span>
-          </div>
-          <div className="flex-1 min-h-[280px] sm:min-h-[320px] overflow-auto p-3 sm:p-4">
-            {previewContent}
-          </div>
-        </div>
-      </div>
+                <div className="flex flex-1 flex-col lg:flex-row min-h-0 min-h-0">
+                  <aside className="hidden lg:flex w-[220px] xl:w-56 shrink-0 flex-col border-b lg:border-b-0 lg:border-r border-border/40 bg-muted/10">
+                    <PlaygroundFileTree
+                      filePaths={filePaths}
+                      activeFile={activeFile}
+                      onSelectFile={setActiveFile}
+                      onAddFile={addFile}
+                      onRemoveFile={removeFile}
+                      className="flex-1 min-h-0"
+                    />
+                  </aside>
+                  <div
+                    ref={editorContainerRef}
+                    className="relative flex-1 min-w-0 min-h-0 flex flex-col overflow-hidden"
+                  >
+                    <div className="hidden min-h-11 items-center justify-between gap-3 border-b border-border bg-card px-4 text-xs lg:flex">
+                      <span className="flex min-w-0 items-center gap-2">
+                        <FileCodeIcon className="size-3.5 shrink-0 text-primary" />
+                        <span className="truncate">
+                          {activeFile.replace(/^\//, "")}
+                        </span>
+                      </span>
+                      <span className="workspace-status">
+                        <span className="status-dot" />
+                        {getLanguage(activeFile)}
+                      </span>
+                      <WorkspacePaneControls />
+                    </div>
+                    {shouldRenderEditor ? (
+                      <MonacoEditor
+                        height={
+                          isLargeScreen
+                            ? Math.max(100, editorHeight - 44)
+                            : editorHeight
+                        }
+                        language={getLanguage(activeFile)}
+                        value={files[activeFile] ?? ""}
+                        onChange={(value) =>
+                          updateFile(activeFile, value ?? "")
+                        }
+                        onMount={(instance) => {
+                          monacoRef.current = instance;
+                          window.requestAnimationFrame(() => instance.layout());
+                        }}
+                        theme={isDark ? "vs-dark" : "vs"}
+                        options={{
+                          readOnly: false,
+                          minimap: { enabled: false },
+                          fontSize: 14,
+                          padding: { top: 16 },
+                          scrollBeyondLastLine: false,
+                          lineNumbers: "on",
+                          wordWrap: "on",
+                          automaticLayout: true,
+                        }}
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center h-full bg-muted/30 text-muted-foreground text-sm">
+                        Chargement de l’éditeur…
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ),
+          },
+          {
+            id: "preview",
+            label: messages.exercise.tabPreview,
+            size: 40,
+            min: 20,
+            content: (
+              <div
+                className={`flex flex-col w-full min-w-0 min-h-0 bg-muted/20 ${
+                  mobilePanel !== "preview" ? "hidden lg:flex" : "flex"
+                }`}
+              >
+                <div className="px-3 py-2 border-b border-border/40 flex items-center gap-2 shrink-0 min-h-[44px]">
+                  <LayoutIcon className="size-4 text-muted-foreground" />
+                  <span className="text-sm font-medium text-muted-foreground">
+                    Aperçu
+                  </span>
+                  <span className="ml-auto">
+                    <WorkspacePaneControls />
+                  </span>
+                </div>
+                <div className="flex-1 min-h-0 overflow-auto p-3 sm:p-4">
+                  {previewContent}
+                </div>
+              </div>
+            ),
+          },
+        ]}
+      />
 
       <OfflineExportDialog
         variant="playground"

@@ -20,6 +20,12 @@ import {
   BookOpenCheckIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { HtmlPreview } from "@/components/html-preview";
+import { WorkspaceActionMenu } from "@/components/workspace-action-menu";
+import {
+  WorkspacePanels,
+  WorkspacePaneControls,
+} from "@/components/workspace-panels";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -108,20 +114,9 @@ const MonacoEditor = dynamic(() => import("@/components/code-editor"), {
   loading: () => <ExerciseEditorLoading />,
 });
 
-const SandpackRoot = dynamic(
-  () =>
-    import("@codesandbox/sandpack-react").then((mod) => ({
-      default: mod.SandpackProvider,
-    })),
-  { ssr: false },
-);
-const SandpackPreview = dynamic(
-  () =>
-    import("@codesandbox/sandpack-react").then((mod) => ({
-      default: mod.SandpackPreview,
-    })),
-  { ssr: false },
-);
+const LivePreview = dynamic(() => import("@/components/live-preview"), {
+  ssr: false,
+});
 
 type Panel = "instructions" | "editor" | "preview";
 
@@ -176,7 +171,9 @@ function ExerciseWorkspaceInner({
   const { resolvedTheme } = useTheme();
   const isDark = (resolvedTheme ?? "dark") === "dark";
 
-  const [mobilePanel, setMobilePanel] = useState<Panel>("instructions");
+  const [mobilePanel, setMobilePanel] = useState<Panel>(
+    seed ? "editor" : "instructions",
+  );
   const [offlineExportOpen, setOfflineExportOpen] = useState(false);
   const isLargeScreen = useIsLargeScreen();
   const { ref: editorContainerRef, height: editorHeight } =
@@ -215,7 +212,12 @@ function ExerciseWorkspaceInner({
 
   useDocumentTitle(`${localized.title} — Exercices · lab.andromed`);
 
-  const shouldRenderEditor = isLargeScreen || mobilePanel === "editor";
+  const [editorVisited, setEditorVisited] = useState(Boolean(seed));
+  const shouldRenderEditor = isLargeScreen || editorVisited;
+  function changeMobilePanel(panel: Panel) {
+    if (panel === "editor") setEditorVisited(true);
+    setMobilePanel(panel);
+  }
 
   useEffect(() => {
     if (!shouldRenderEditor) return;
@@ -264,7 +266,7 @@ function ExerciseWorkspaceInner({
       );
     },
     onFocusEditor: () => {
-      setMobilePanel("editor");
+      changeMobilePanel("editor");
       window.requestAnimationFrame(() =>
         editorRegionRef.current?.focus({ preventScroll: false }),
       );
@@ -290,6 +292,34 @@ function ExerciseWorkspaceInner({
     }, 650);
     return () => window.clearTimeout(timer);
   }, [exercise.id, files, editorPath, t.draftNotSaved]);
+
+  const latestDraft = useRef({
+    exerciseId: exercise.id,
+    files,
+    selectedFile: editorPath,
+  });
+  useEffect(() => {
+    latestDraft.current = {
+      exerciseId: exercise.id,
+      files,
+      selectedFile: editorPath,
+    };
+  }, [exercise.id, files, editorPath]);
+  useEffect(() => {
+    const save = () => {
+      writeExerciseDraft(latestDraft.current);
+    };
+    const onVisibility = () => {
+      if (document.visibilityState === "hidden") save();
+    };
+    window.addEventListener("pagehide", save);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      window.removeEventListener("pagehide", save);
+      document.removeEventListener("visibilitychange", onVisibility);
+      save();
+    };
+  }, []);
 
   const updateFile = useCallback((path: string, content: string) => {
     setFiles((prev) => ({ ...prev, [path]: content }));
@@ -358,26 +388,18 @@ function ExerciseWorkspaceInner({
     }
     if (hasSandpack) {
       return (
-        <SandpackRoot
+        <LivePreview
           template={sandpackRuntimeTemplate}
           files={sandpackFiles}
           theme={isDark ? "dark" : "light"}
-          options={{ recompileMode: "delayed", recompileDelay: 400 }}
-        >
-          <SandpackPreview
-            style={{ minHeight: 280, borderRadius: 8 }}
-            showOpenInCodeSandbox={false}
-          />
-        </SandpackRoot>
+        />
       );
     }
     if (hasHtmlPreview) {
       return (
-        <iframe
-          title="Aperçu"
+        <HtmlPreview
+          title={messages.exercise.previewHeading}
           srcDoc={buildHtmlPreview(files)}
-          className="w-full min-h-[280px] rounded-lg border border-border bg-white"
-          sandbox="allow-scripts"
         />
       );
     }
@@ -390,6 +412,7 @@ function ExerciseWorkspaceInner({
     hasTerminalPreview,
     hasSandpack,
     hasHtmlPreview,
+    messages.exercise.previewHeading,
     sandpackFiles,
     sandpackRuntimeTemplate,
     files,
@@ -447,92 +470,164 @@ function ExerciseWorkspaceInner({
               </h1>
             </div>
           </div>
-          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 overflow-x-auto flex-nowrap sm:flex-wrap sm:overflow-visible sm:justify-end -mx-3 px-3 sm:mx-0 sm:px-0 pb-0.5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden [&>*]:shrink-0">
-            <ThemeToggle />
-            <LocaleSwitcher className="w-[120px] min-h-[36px] h-9" />
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setHelpOpen(true)}
-              className="gap-1.5 touch-manipulation"
-              aria-label={t.help}
-            >
-              <KeyboardIcon className="size-4 sm:hidden" />
-              <span className="hidden sm:inline">{t.help}</span>
-            </Button>
-            {localized.hint ? (
+          {isLargeScreen ? (
+            <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 overflow-x-auto flex-nowrap sm:flex-wrap sm:overflow-visible sm:justify-end -mx-3 px-3 sm:mx-0 sm:px-0 pb-0.5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden [&>*]:shrink-0">
+              <ThemeToggle />
+              <LocaleSwitcher className="w-[132px] min-h-[36px] h-9" />
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setHintOpen(true)}
+                onClick={() => setHelpOpen(true)}
                 className="gap-1.5 touch-manipulation"
+                aria-label={t.help} title={t.help}
               >
-                <LightbulbIcon className="size-4" />
-                <span className="hidden sm:inline">{t.hint}</span>
+                <KeyboardIcon className="size-4 2xl:hidden" />
+                <span className="hidden 2xl:inline">{t.help}</span>
               </Button>
-            ) : null}
-            {hasSolution ? (
+              {localized.hint ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setHintOpen(true)}
+                  aria-label={t.hint} title={t.hint}
+                  className="gap-1.5 touch-manipulation"
+                >
+                  <LightbulbIcon className="size-4" />
+                  <span className="hidden 2xl:inline">{t.hint}</span>
+                </Button>
+              ) : null}
+              {hasSolution ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSolutionConfirmOpen(true)}
+                  className="gap-1.5 touch-manipulation"
+                  aria-label={t.solution}
+                >
+                  <BookOpenCheckIcon className="size-4" />
+                  <span className="text-xs sm:text-sm">{t.solution}</span>
+                </Button>
+              ) : null}
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setSolutionConfirmOpen(true)}
+                onClick={() => void copyShareLink()}
                 className="gap-1.5 touch-manipulation"
-                aria-label={t.solution}
+                aria-label={t.share} title={t.share}
               >
-                <BookOpenCheckIcon className="size-4" />
-                <span className="text-xs sm:text-sm">{t.solution}</span>
+                <Link2Icon className="size-4" />
+                <span className="hidden 2xl:inline">{t.share}</span>
               </Button>
-            ) : null}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => void copyShareLink()}
-              className="gap-1.5 touch-manipulation"
-              aria-label={t.share}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => void copyCurrentFile()}
+                className="gap-1.5 touch-manipulation"
+                aria-label={t.copy} title={t.copy}
+                data-testid="exercise-copy-file"
+              >
+                <ClipboardCopyIcon className="size-4" />
+                <span className="hidden 2xl:inline">{t.copy}</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleReset}
+                aria-label={t.reset} title={t.reset}
+                className="gap-1.5 touch-manipulation"
+              >
+                <RotateCcwIcon className="size-4" />
+                <span className="hidden 2xl:inline">{t.reset}</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setOfflineExportOpen(true)}
+                className="gap-1.5 touch-manipulation"
+                data-testid="exercise-export-offline"
+                aria-label={t.offline} title={t.offline}
+              >
+                <WifiOffIcon className="size-4" />
+                <span className="hidden 2xl:inline">{t.offline}</span>
+              </Button>
+              <Button
+                size="sm"
+                onClick={handleValidate}
+                className="gap-1.5 touch-manipulation"
+                aria-label={t.validate}
+              >
+                <CheckCircle2Icon className="size-4" />
+                <span className="text-xs sm:text-sm">{t.validate}</span>
+              </Button>
+            </div>
+          ) : (
+            <div
+              className="flex w-full items-center justify-end gap-2"
+              data-testid="exercise-mobile-actions"
             >
-              <Link2Icon className="size-4" />
-              <span className="hidden sm:inline">{t.share}</span>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => void copyCurrentFile()}
-              className="gap-1.5 touch-manipulation"
-              aria-label={t.copy}
-              data-testid="exercise-copy-file"
-            >
-              <ClipboardCopyIcon className="size-4" />
-              <span className="hidden sm:inline">{t.copy}</span>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleReset}
-              className="gap-1.5 touch-manipulation"
-            >
-              <RotateCcwIcon className="size-4" />
-              <span className="hidden sm:inline">{t.reset}</span>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setOfflineExportOpen(true)}
-              className="gap-1.5 touch-manipulation"
-              data-testid="exercise-export-offline"
-            >
-              <WifiOffIcon className="size-4" />
-              <span className="hidden sm:inline">{t.offline}</span>
-            </Button>
-            <Button
-              size="sm"
-              onClick={handleValidate}
-              className="gap-1.5 touch-manipulation"
-              aria-label={t.validate}
-            >
-              <CheckCircle2Icon className="size-4" />
-              <span className="text-xs sm:text-sm">{t.validate}</span>
-            </Button>
-          </div>
+              {localized.hint && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-11"
+                  aria-label={t.hint} title={t.hint}
+                  onClick={() => setHintOpen(true)}
+                >
+                  <LightbulbIcon className="size-4" />
+                </Button>
+              )}
+              {hasSolution && (
+                <Button
+                  variant="outline"
+                  className="min-h-11 gap-2"
+                  onClick={() => setSolutionConfirmOpen(true)}
+                  aria-label={t.solution}
+                >
+                  <BookOpenCheckIcon className="size-4" />
+                  {t.solution}
+                </Button>
+              )}
+              <Button
+                className="min-h-11 gap-2"
+                onClick={handleValidate}
+                aria-label={t.validate}
+              >
+                <CheckCircle2Icon className="size-4" />
+                {t.validate}
+              </Button>
+              <WorkspaceActionMenu
+                actions={[
+                  {
+                    label: t.help,
+                    icon: <KeyboardIcon className="size-4" />,
+                    onSelect: () => setHelpOpen(true),
+                  },
+                  {
+                    label: t.share,
+                    icon: <Link2Icon className="size-4" />,
+                    onSelect: () => void copyShareLink(),
+                  },
+                  {
+                    label: t.copy,
+                    icon: <ClipboardCopyIcon className="size-4" />,
+                    onSelect: () => void copyCurrentFile(),
+                    testId: "exercise-copy-file",
+                  },
+                  {
+                    label: t.offline,
+                    icon: <WifiOffIcon className="size-4" />,
+                    onSelect: () => setOfflineExportOpen(true),
+                    testId: "exercise-export-offline",
+                  },
+                  {
+                    label: t.reset,
+                    icon: <RotateCcwIcon className="size-4" />,
+                    onSelect: handleReset,
+                  },
+                ]}
+              />
+            </div>
+          )}
         </div>
 
         <nav
@@ -569,7 +664,12 @@ function ExerciseWorkspaceInner({
             <button
               key={tab.id}
               type="button"
-              onClick={() => setMobilePanel(tab.id)}
+              onClick={() => changeMobilePanel(tab.id)}
+              aria-label={tab.label}
+              aria-describedby={
+                tab.id === "editor" ? "active-exercise-file" : undefined
+              }
+              aria-pressed={mobilePanel === tab.id}
               className={`flex-1 flex items-center justify-center gap-1.5 py-3 text-sm font-medium transition-colors touch-manipulation ${
                 mobilePanel === tab.id
                   ? "bg-background text-primary border-b-2 border-primary shadow-sm"
@@ -577,105 +677,161 @@ function ExerciseWorkspaceInner({
               }`}
             >
               {tab.icon}
-              {tab.label}
+              <span className="min-w-0">
+                <span className="block">{tab.label}</span>
+                {tab.id === "editor" && (
+                  <span
+                    id="active-exercise-file"
+                    className="block max-w-24 truncate text-[9px] font-normal opacity-75"
+                    title={editorPath}
+                  >
+                    {editorPath.replace(/^\//, "")}
+                  </span>
+                )}
+              </span>
             </button>
           ))}
+          {validationResults && (
+            <button
+              type="button"
+              className="correction-tab"
+              data-testid="correction-available"
+              onClick={() => setCorrectionOpen(true)}
+              aria-label={t.correctionTitle}
+            >
+              <span className="correction-dot" />
+              {t.correctionTitle}
+            </button>
+          )}
         </div>
       </header>
 
-      <div className="flex-1 flex flex-col lg:flex-row min-h-0">
-        <aside
-          ref={instructionsRef}
-          tabIndex={-1}
-          className={`flex min-h-0 flex-1 flex-col border-b lg:border-b-0 lg:border-r border-border/40 bg-card/30 lg:flex-none outline-none ${
-            mobilePanel !== "instructions" ? "hidden lg:flex" : "flex"
-          } lg:w-80 xl:w-96`}
-        >
-          <div className="p-3 sm:p-4 border-b border-border/40 shrink-0">
-            <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
-              <FileTextIcon className="size-4" />
-              {t.instructionsHeading}
-            </h2>
-          </div>
-          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3 sm:p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-            <ExerciseInstructions content={localized.instructions} />
-          </div>
-        </aside>
-
-        <section
-          ref={editorRegionRef}
-          tabIndex={-1}
-          className={`flex min-h-0 flex-col min-w-0 flex-1 outline-none ${
-            mobilePanel !== "editor" ? "hidden lg:flex" : "flex"
-          }`}
-        >
-          <div className="workspace-file-tabs border-b border-border/40 bg-card px-2 py-1 flex items-center gap-1 overflow-x-auto shrink-0 min-h-[48px]">
-            {filePaths.map((path) => (
-              <button
-                key={path}
-                type="button"
-                onClick={() => setSelectedFile(path)}
-                className={`px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors touch-manipulation min-h-[40px] ${
-                  editorPath === path
-                    ? "bg-primary/15 text-primary"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+      <WorkspacePanels
+        id="exercise-workspace"
+        activePanel={mobilePanel}
+        panels={[
+          {
+            id: "instructions",
+            label: t.tabInstructions,
+            size: 27,
+            content: (
+              <aside
+                ref={instructionsRef}
+                tabIndex={-1}
+                className={`flex min-h-0 flex-1 flex-col border-b lg:border-b-0 lg:border-r border-border/40 bg-card/30 outline-none ${
+                  mobilePanel !== "instructions" ? "hidden lg:flex" : "flex"
                 }`}
               >
-                {path.replace(/^\//, "")}
-              </button>
-            ))}
-          </div>
-          <div
-            ref={editorContainerRef}
-            className="relative flex-1 min-h-[280px] sm:min-h-[320px] lg:min-h-[320px] overflow-hidden"
-          >
-            {shouldRenderEditor ? (
-              <MonacoEditor
-                key={editorPath}
-                height={editorHeight}
-                language={getLanguage(editorPath)}
-                value={files[editorPath] ?? ""}
-                onChange={(value) => updateFile(editorPath, value ?? "")}
-                onMount={(instance) => {
-                  monacoRef.current = instance;
-                  window.requestAnimationFrame(() => instance.layout());
-                }}
-                theme={isDark ? "vs-dark" : "vs"}
-                options={{
-                  readOnly: false,
-                  minimap: { enabled: false },
-                  fontSize: 14,
-                  padding: { top: 16 },
-                  scrollBeyondLastLine: false,
-                  lineNumbers: "on",
-                  wordWrap: "on",
-                  automaticLayout: true,
-                }}
-              />
-            ) : (
-              <ExerciseEditorLoading />
-            )}
-          </div>
-        </section>
-
-        <section
-          ref={previewRegionRef}
-          tabIndex={-1}
-          className={`flex flex-col min-w-0 flex-1 bg-muted/20 outline-none ${
-            mobilePanel !== "preview" ? "hidden lg:flex" : "flex"
-          } lg:max-w-[50%]`}
-        >
-          <div className="px-3 py-2 border-b border-border/40 flex items-center gap-2 shrink-0 min-h-[44px]">
-            <LayoutIcon className="size-4 text-muted-foreground" />
-            <span className="text-sm font-medium text-muted-foreground">
-              {t.previewHeading}
-            </span>
-          </div>
-          <div className="flex-1 overflow-auto p-3 sm:p-4 min-h-[240px] sm:min-h-[280px]">
-            {previewContent}
-          </div>
-        </section>
-      </div>
+                <div className="flex items-center justify-between gap-2 p-3 sm:p-4 border-b border-border/40 shrink-0">
+                  <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <FileTextIcon className="size-4" />
+                    {t.instructionsHeading}
+                  </h2>
+                  <WorkspacePaneControls />
+                </div>
+                <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3 sm:p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+                  <ExerciseInstructions
+                    content={localized.instructions}
+                    contextLabel={messages.ux.labContext}
+                  />
+                </div>
+              </aside>
+            ),
+          },
+          {
+            id: "editor",
+            label: t.tabEditor,
+            size: 38,
+            content: (
+              <section
+                ref={editorRegionRef}
+                tabIndex={-1}
+                className={`flex min-h-0 flex-col min-w-0 flex-1 outline-none ${
+                  mobilePanel !== "editor" ? "hidden lg:flex" : "flex"
+                }`}
+              >
+                <div className="workspace-file-tabs border-b border-border/40 bg-card px-2 py-1 flex items-center gap-1 overflow-x-auto shrink-0 min-h-[48px]">
+                  {filePaths.map((path) => (
+                    <button
+                      key={path}
+                      type="button"
+                      onClick={() => setSelectedFile(path)}
+                      className={`px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors touch-manipulation min-h-[40px] ${
+                        editorPath === path
+                          ? "bg-primary/15 text-primary"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                      }`}
+                    >
+                      {path.replace(/^\//, "")}
+                    </button>
+                  ))}
+                  <span className="sticky right-0 ml-auto bg-card">
+                    <WorkspacePaneControls />
+                  </span>
+                </div>
+                <div
+                  ref={editorContainerRef}
+                  className="relative flex-1 min-h-0 overflow-hidden"
+                >
+                  {shouldRenderEditor ? (
+                    <MonacoEditor
+                      key={editorPath}
+                      height={editorHeight}
+                      language={getLanguage(editorPath)}
+                      value={files[editorPath] ?? ""}
+                      onChange={(value) => updateFile(editorPath, value ?? "")}
+                      onMount={(instance) => {
+                        monacoRef.current = instance;
+                        window.requestAnimationFrame(() => instance.layout());
+                      }}
+                      theme={isDark ? "vs-dark" : "vs"}
+                      options={{
+                        readOnly: false,
+                        minimap: { enabled: false },
+                        fontSize: 14,
+                        padding: { top: 16 },
+                        scrollBeyondLastLine: false,
+                        lineNumbers: "on",
+                        wordWrap: "on",
+                        automaticLayout: true,
+                      }}
+                    />
+                  ) : (
+                    <ExerciseEditorLoading />
+                  )}
+                </div>
+              </section>
+            ),
+          },
+          {
+            id: "preview",
+            label: t.tabPreview,
+            size: 35,
+            content: (
+              <section
+                ref={previewRegionRef}
+                tabIndex={-1}
+                className={`flex flex-col min-w-0 min-h-0 flex-1 bg-muted/20 outline-none ${
+                  mobilePanel !== "preview" ? "hidden lg:flex" : "flex"
+                }`}
+              >
+                <div className="px-3 py-2 border-b border-border/40 flex items-center gap-2 shrink-0 min-h-[44px]">
+                  <LayoutIcon className="size-4 text-muted-foreground" />
+                  <span className="text-sm font-medium text-muted-foreground">
+                    {t.previewHeading}
+                  </span>
+                  <span className="ml-auto">
+                    <WorkspacePaneControls />
+                  </span>
+                </div>
+                <div className="flex-1 overflow-auto p-3 sm:p-4 min-h-0">
+                  {previewContent}
+                </div>
+              </section>
+            ),
+          },
+        ]}
+      />
 
       {validationResults && isLargeScreen ? (
         <div ref={correctionPanelRef}>
@@ -841,7 +997,12 @@ function ExerciseWithPersistence({ exercise }: { exercise: Exercise }) {
         }
       }
       const d = readExerciseDraft(exercise.id);
-      if (d) setView({ phase: "prompt", draft: d });
+      if (d && params.get("resume") === "1")
+        setView({
+          phase: "run",
+          seed: { files: d.files, selectedFile: d.selectedFile },
+        });
+      else if (d) setView({ phase: "prompt", draft: d });
       else setView({ phase: "run", seed: null });
     }
     void run();
